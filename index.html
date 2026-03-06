@@ -1,0 +1,3119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>SolarForge Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700;800;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --amber:   #F59E0B;
+  --amber2:  #FCD34D;
+  --orange:  #EA580C;
+  --green:   #10B981;
+  --red:     #EF4444;
+  --blue:    #3B82F6;
+  --teal:    #06B6D4;
+  --purple:  #8B5CF6;
+  --bg:      #0A0C0F;
+  --surface: #111318;
+  --card:    #181C23;
+  --card2:   #1E232C;
+  --border:  #252B36;
+  --border2: #2E3647;
+  --text:    #E2E8F0;
+  --muted:   #64748B;
+  --muted2:  #94A3B8;
+  --mono:    'Share Tech Mono', monospace;
+  --body:    'Exo 2', sans-serif;
+  --r:       12px;
+  --r2:      8px;
+  --nav-h:   68px;
+  --header-h:60px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  height: 100%; overflow: hidden;
+  font-family: var(--body);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ════════════════════════════════════════
+   HEADER
+════════════════════════════════════════ */
+.app-header {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  height: var(--header-h);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 16px;
+  backdrop-filter: blur(12px);
+}
+.header-brand { display: flex; align-items: center; gap: 10px; }
+.sun-orb {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, var(--amber2), var(--amber), var(--orange));
+  box-shadow: 0 0 16px rgba(245,158,11,0.45), 0 0 32px rgba(245,158,11,0.2);
+  flex-shrink: 0; position: relative;
+  animation: pulse-sun 3s ease-in-out infinite;
+}
+@keyframes pulse-sun {
+  0%,100% { box-shadow: 0 0 16px rgba(245,158,11,0.45), 0 0 32px rgba(245,158,11,0.2); }
+  50%      { box-shadow: 0 0 24px rgba(245,158,11,0.65), 0 0 48px rgba(245,158,11,0.3); }
+}
+.brand-name { font-size: 20px; font-weight: 900; letter-spacing: 0.04em; line-height: 1; }
+.brand-name span { color: var(--amber); }
+.brand-sub { font-size: 10px; color: var(--muted); letter-spacing: 0.18em; text-transform: uppercase; font-family: var(--mono); }
+
+.calc-trigger {
+  background: linear-gradient(135deg, var(--amber), var(--orange));
+  color: #000; font-family: var(--body); font-size: 14px;
+  font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
+  border: none; border-radius: 8px; padding: 0 20px; height: 42px;
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+  transition: opacity 0.15s, transform 0.1s; flex-shrink: 0;
+}
+.calc-trigger:active { opacity: 0.85; transform: scale(0.97); }
+
+/* ════════════════════════════════════════
+   MAIN SCROLL AREA
+════════════════════════════════════════ */
+.app-body {
+  position: fixed;
+  top: var(--header-h); bottom: var(--nav-h); left: 0; right: 0;
+  overflow-y: auto; overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.tab-pane { display: none; padding: 14px 14px 10px; }
+.tab-pane.active { display: block; animation: fadeUp 0.2s ease; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ════════════════════════════════════════
+   BOTTOM NAV
+════════════════════════════════════════ */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+  height: var(--nav-h);
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  display: flex; align-items: stretch;
+  overflow-x: auto; scrollbar-width: none;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+  -webkit-overflow-scrolling: touch;
+}
+.bottom-nav::-webkit-scrollbar { display: none; }
+.nav-item {
+  min-width: 64px; flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 3px;
+  cursor: pointer; border: none; background: none;
+  color: var(--muted); font-family: var(--body);
+  transition: color 0.15s; position: relative;
+  padding: 8px 4px; flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+.nav-item.active { color: var(--amber); }
+.nav-item.active::before {
+  content: '';
+  position: absolute; top: 0; left: 15%; right: 15%; height: 2px;
+  background: var(--amber); border-radius: 0 0 4px 4px;
+}
+.nav-icon { font-size: 20px; line-height: 1; }
+.nav-label { font-size: 9px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; font-family: var(--mono); white-space: nowrap; }
+
+/* ════════════════════════════════════════
+   SETUP TYPE SELECTOR
+════════════════════════════════════════ */
+.setup-selector { margin-bottom: 14px; }
+.setup-label {
+  font-size: 11px; font-weight: 700; color: var(--muted);
+  letter-spacing: 0.16em; text-transform: uppercase;
+  font-family: var(--mono); margin-bottom: 10px; display: block;
+}
+.setup-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.setup-card {
+  background: var(--card); border: 2px solid var(--border);
+  border-radius: var(--r); padding: 14px 8px; cursor: pointer;
+  text-align: center; transition: all 0.2s;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+}
+.setup-card:active { transform: scale(0.97); }
+.setup-card.sel-offgrid.active  { border-color: var(--green);  background: rgba(16,185,129,0.1); }
+.setup-card.sel-ongrid.active   { border-color: var(--blue);   background: rgba(59,130,246,0.1); }
+.setup-card.sel-hybrid.active   { border-color: var(--purple); background: rgba(139,92,246,0.1); }
+.setup-icon { font-size: 28px; }
+.setup-name {
+  font-size: 13px; font-weight: 700; letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--muted2);
+}
+.setup-card.active .setup-name  { color: var(--text); }
+.setup-card.sel-offgrid.active .setup-name  { color: var(--green); }
+.setup-card.sel-ongrid.active   .setup-name { color: var(--blue); }
+.setup-card.sel-hybrid.active   .setup-name { color: var(--purple); }
+.setup-badge {
+  font-size: 10px; font-family: var(--mono); color: var(--muted);
+  line-height: 1.3; text-align: center;
+}
+
+/* ════════════════════════════════════════
+   SECTION BANNER (setup description)
+════════════════════════════════════════ */
+.setup-banner {
+  border-radius: var(--r); padding: 12px 14px; margin-bottom: 14px;
+  font-size: 13px; line-height: 1.5; display: flex; gap: 10px;
+  align-items: flex-start;
+}
+.setup-banner.offgrid  { background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.25); }
+.setup-banner.ongrid   { background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.25); }
+.setup-banner.hybrid   { background: rgba(139,92,246,0.08); border: 1px solid rgba(139,92,246,0.25); }
+.banner-icon { font-size: 20px; flex-shrink: 0; }
+
+/* ════════════════════════════════════════
+   CARDS
+════════════════════════════════════════ */
+.card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 16px; margin-bottom: 12px;
+}
+.card-head {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 14px;
+}
+.card-icon {
+  width: 34px; height: 34px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+.ci-amber  { background: rgba(245,158,11,0.15); }
+.ci-green  { background: rgba(16,185,129,0.15); }
+.ci-blue   { background: rgba(59,130,246,0.15); }
+.ci-red    { background: rgba(239,68,68,0.15); }
+.ci-teal   { background: rgba(6,182,212,0.15); }
+.ci-purple { background: rgba(139,92,246,0.15); }
+.card-title {
+  font-size: 14px; font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--text);
+}
+.card-subtitle { font-size: 11px; color: var(--muted); font-family: var(--mono); }
+
+/* ════════════════════════════════════════
+   FORM ELEMENTS
+════════════════════════════════════════ */
+.form-grid { display: grid; gap: 10px; grid-template-columns: 1fr 1fr; }
+.form-grid.cols1 { grid-template-columns: 1fr; }
+.form-grid.cols3 { grid-template-columns: 1fr 1fr 1fr; }
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field.span2 { grid-column: 1/-1; }
+
+label {
+  font-size: 11px; font-weight: 600; color: var(--muted);
+  letter-spacing: 0.1em; text-transform: uppercase; font-family: var(--mono);
+}
+label .opt { color: var(--border2); font-weight: 400; }
+
+input[type=text], input[type=number], input[type=url], select, textarea {
+  background: var(--card2); border: 1.5px solid var(--border);
+  border-radius: var(--r2); padding: 12px 13px;
+  color: var(--text); font-size: 15px; font-family: var(--body);
+  font-weight: 500; outline: none;
+  transition: border-color 0.2s, background 0.2s;
+  width: 100%; -webkit-appearance: none; appearance: none;
+  min-height: 48px;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--amber); background: rgba(245,158,11,0.04);
+}
+input::placeholder, textarea::placeholder { color: var(--muted); font-size: 13px; font-weight: 400; }
+select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; }
+select option { background: #1E232C; }
+textarea { resize: none; min-height: 72px; }
+
+/* ════════════════════════════════════════
+   TOGGLE SECTION (collapsible)
+════════════════════════════════════════ */
+.section-toggle {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 0; cursor: pointer; user-select: none; margin-bottom: 2px;
+}
+.section-toggle-title {
+  font-size: 12px; font-weight: 700; color: var(--muted2);
+  letter-spacing: 0.12em; text-transform: uppercase; font-family: var(--mono);
+}
+.toggle-chevron { color: var(--muted); font-size: 16px; transition: transform 0.2s; }
+.toggle-chevron.open { transform: rotate(180deg); }
+.collapsible { overflow: hidden; transition: max-height 0.3s ease; }
+.collapsible.closed { max-height: 0 !important; }
+
+/* ════════════════════════════════════════
+   APPLIANCES
+════════════════════════════════════════ */
+.appliance-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+.app-item {
+  background: var(--card2); border: 1px solid var(--border);
+  border-radius: var(--r2); padding: 12px;
+}
+.app-row1 { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+.app-name-input { flex: 1; min-height: 44px; font-size: 15px; }
+.app-del {
+  width: 44px; height: 44px; background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.3); border-radius: var(--r2);
+  color: var(--red); font-size: 20px; cursor: pointer; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.app-del:active { background: var(--red); color: white; }
+.app-row2 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+.app-row2 input { min-height: 44px; text-align: center; font-size: 14px; }
+.app-row2-labels { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 4px; }
+.app-mini-label { font-size: 10px; color: var(--muted); font-family: var(--mono); text-align: center; letter-spacing: 0.08em; text-transform: uppercase; }
+.add-app-btn {
+  width: 100%; height: 52px; background: transparent;
+  border: 2px dashed var(--border2); border-radius: var(--r2);
+  color: var(--muted2); font-family: var(--body); font-size: 14px;
+  font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+  cursor: pointer; transition: all 0.2s; display: flex; align-items: center;
+  justify-content: center; gap: 8px;
+}
+.add-app-btn:active { border-color: var(--amber); color: var(--amber); }
+
+/* ════════════════════════════════════════
+   RESULTS
+════════════════════════════════════════ */
+.metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+.metric-card {
+  background: var(--card2); border: 1px solid var(--border);
+  border-radius: var(--r2); padding: 13px 14px;
+}
+.metric-label { font-size: 10px; color: var(--muted); font-family: var(--mono); letter-spacing: 0.08em; text-transform: uppercase; }
+.metric-val {
+  font-size: 28px; font-weight: 800; color: var(--amber);
+  line-height: 1.15; letter-spacing: -0.01em; margin-top: 2px;
+}
+.metric-unit { font-size: 13px; font-weight: 500; color: var(--muted2); }
+.metric-sub { font-size: 11px; color: var(--muted); margin-top: 2px; font-family: var(--mono); }
+
+/* alerts */
+.alert-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+.alert-item {
+  border-radius: var(--r2); padding: 13px 14px; border: 1px solid;
+  font-size: 14px; line-height: 1.45;
+}
+.alert-item.ok     { background: rgba(16,185,129,0.08); border-color: rgba(16,185,129,0.3); }
+.alert-item.warn   { background: rgba(245,158,11,0.08); border-color: rgba(245,158,11,0.3); }
+.alert-item.err    { background: rgba(239,68,68,0.08);  border-color: rgba(239,68,68,0.3); }
+.alert-item.info   { background: rgba(59,130,246,0.08); border-color: rgba(59,130,246,0.3); }
+.alert-title { font-weight: 700; font-size: 14px; margin-bottom: 2px; }
+.alert-item.ok   .alert-title { color: var(--green); }
+.alert-item.warn .alert-title { color: var(--amber); }
+.alert-item.err  .alert-title { color: var(--red); }
+.alert-item.info .alert-title { color: var(--blue); }
+.alert-body { color: var(--muted2); font-size: 13px; }
+
+/* bottleneck */
+.bneck-row { display: flex; align-items: center; gap: 10px; margin-bottom: 7px; }
+.bneck-name { width: 78px; font-size: 12px; font-family: var(--mono); color: var(--muted2); flex-shrink: 0; }
+.bneck-track { flex: 1; height: 7px; background: var(--border); border-radius: 99px; overflow: hidden; }
+.bneck-fill { height: 100%; border-radius: 99px; transition: width 0.6s cubic-bezier(.23,1,.32,1); }
+.bneck-pct { width: 38px; text-align: right; font-size: 12px; font-family: var(--mono); flex-shrink: 0; }
+
+/* parts row */
+.parts-list { display: flex; flex-direction: column; gap: 6px; }
+.part-row {
+  background: var(--card2); border: 1px solid var(--border);
+  border-radius: var(--r2); padding: 11px 13px;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+}
+.part-main { flex: 1; min-width: 0; }
+.part-name { font-size: 14px; font-weight: 600; color: var(--text); }
+.part-sub  { font-size: 11px; color: var(--muted); font-family: var(--mono); margin-top: 1px; }
+.part-spec { font-family: var(--mono); font-size: 13px; color: var(--amber); font-weight: 700; flex-shrink: 0; text-align: right; }
+
+/* cycle cards */
+.cycle-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.cycle-card {
+  background: var(--card2); border: 1px solid var(--border);
+  border-radius: var(--r2); padding: 12px 8px; text-align: center;
+}
+.cycle-dod  { font-size: 11px; color: var(--muted); font-family: var(--mono); }
+.cycle-val  { font-size: 22px; font-weight: 800; color: var(--amber2); margin: 4px 0; }
+.cycle-yrs  { font-size: 11px; color: var(--muted2); }
+
+/* tier compare */
+.tier-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.tier-card { background: var(--card2); border: 1px solid var(--border); border-radius: var(--r2); padding: 14px; }
+.tier-card.pro { border-color: var(--amber); }
+.tier-head { font-size: 12px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; font-family: var(--mono); margin-bottom: 8px; }
+.tier-card:not(.pro) .tier-head { color: var(--muted2); }
+.tier-card.pro .tier-head { color: var(--amber); }
+.tier-row { font-size: 13px; color: var(--muted2); margin-bottom: 3px; }
+.tier-row strong { color: var(--text); font-weight: 600; }
+
+/* total row */
+.total-row {
+  background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3);
+  border-radius: var(--r2); padding: 13px 14px;
+  display: flex; justify-content: space-between; align-items: center; margin-top: 8px;
+}
+.total-label { font-size: 14px; font-weight: 700; }
+.total-val { font-family: var(--mono); font-size: 16px; font-weight: 700; color: var(--amber); }
+
+/* section micro-header */
+.micro-head {
+  font-size: 11px; font-weight: 700; color: var(--muted);
+  letter-spacing: 0.16em; text-transform: uppercase;
+  font-family: var(--mono); margin: 14px 0 8px;
+  display: flex; align-items: center; gap: 8px;
+}
+.micro-head::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+
+/* wiring diagram */
+.wiring-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
+.wiring-flow {
+  display: flex; align-items: center; gap: 0;
+  min-width: max-content; padding: 8px 0;
+}
+.wnode {
+  background: var(--card2); border: 2px solid var(--border2);
+  border-radius: 8px; padding: 10px 12px;
+  font-family: var(--mono); font-size: 11px;
+  text-align: center; min-width: 76px; line-height: 1.4;
+  font-weight: 600;
+}
+.wnode.panel    { border-color: var(--amber); color: var(--amber); }
+.wnode.breaker  { border-color: var(--red); color: var(--red); }
+.wnode.scc      { border-color: var(--blue); color: var(--blue); }
+.wnode.battery  { border-color: var(--green); color: var(--green); }
+.wnode.inverter { border-color: var(--orange); color: var(--orange); }
+.wnode.grid     { border-color: var(--teal); color: var(--teal); }
+.wnode.load     { border-color: var(--muted2); color: var(--muted2); }
+.wnode.ats      { border-color: var(--purple); color: var(--purple); }
+.warrow { color: var(--border2); font-size: 20px; padding: 0 3px; flex-shrink: 0; }
+
+/* empty state */
+.empty {
+  text-align: center; padding: 52px 24px; color: var(--muted);
+}
+.empty-icon { font-size: 52px; margin-bottom: 12px; opacity: 0.35; }
+.empty-text { font-size: 17px; font-weight: 700; color: var(--muted2); }
+.empty-sub  { font-size: 13px; margin-top: 5px; }
+.empty-btn  {
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-top: 18px; background: var(--amber); color: #000;
+  border: none; border-radius: 8px; padding: 11px 22px;
+  font-family: var(--body); font-size: 14px; font-weight: 800;
+  letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer;
+}
+
+/* ════════════════════════════════════════
+   PRODUCTS / SHOP TAB
+════════════════════════════════════════ */
+.shop-header {
+  background: linear-gradient(135deg, rgba(245,158,11,0.15), rgba(234,88,12,0.08));
+  border: 1px solid rgba(245,158,11,0.25); border-radius: var(--r);
+  padding: 16px; margin-bottom: 14px;
+  display: flex; align-items: center; gap: 12px;
+}
+.shop-header-icon { font-size: 36px; flex-shrink: 0; }
+.shop-header-text h2 { font-size: 18px; font-weight: 900; color: var(--amber); }
+.shop-header-text p  { font-size: 13px; color: var(--muted2); margin-top: 2px; }
+
+/* category filter pills */
+.cat-pills {
+  display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px;
+  margin-bottom: 12px; scrollbar-width: none;
+}
+.cat-pills::-webkit-scrollbar { display: none; }
+.cat-pill {
+  padding: 7px 14px; border-radius: 99px; white-space: nowrap;
+  font-size: 12px; font-weight: 700; font-family: var(--mono);
+  letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer;
+  background: var(--card2); border: 1.5px solid var(--border2);
+  color: var(--muted2); transition: all 0.15s; flex-shrink: 0;
+}
+.cat-pill.active { background: var(--amber); color: #000; border-color: var(--amber); }
+
+/* product cards */
+.products-grid { display: flex; flex-direction: column; gap: 8px; }
+.prod-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r); overflow: hidden; display: flex;
+  transition: border-color 0.2s;
+}
+.prod-card:hover { border-color: var(--border2); }
+.prod-img {
+  width: 90px; height: 90px; object-fit: cover;
+  background: var(--card2); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 36px;
+}
+.prod-img img { width: 90px; height: 90px; object-fit: cover; display: block; }
+.prod-img.no-img { width: 90px; height: 90px; }
+.prod-info { flex: 1; padding: 12px; min-width: 0; display: flex; flex-direction: column; justify-content: space-between; }
+.prod-cat-badge {
+  display: inline-block; font-size: 10px; font-family: var(--mono); font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase; padding: 2px 8px;
+  border-radius: 4px; margin-bottom: 4px;
+  background: rgba(245,158,11,0.15); color: var(--amber);
+}
+.prod-name { font-size: 14px; font-weight: 700; color: var(--text); line-height: 1.3; margin-bottom: 3px; }
+.prod-desc { font-size: 12px; color: var(--muted); line-height: 1.4; margin-bottom: 6px; }
+.prod-footer { display: flex; align-items: center; justify-content: space-between; }
+.prod-price { font-family: var(--mono); font-size: 14px; font-weight: 700; color: var(--green); }
+.prod-link {
+  background: var(--amber); color: #000; font-family: var(--body);
+  font-size: 12px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
+  border: none; border-radius: 6px; padding: 6px 14px; cursor: pointer;
+  text-decoration: none; display: inline-block; transition: opacity 0.15s;
+}
+.prod-link:active { opacity: 0.8; }
+.prod-actions { display: flex; gap: 6px; }
+.prod-edit-btn, .prod-del-btn {
+  width: 32px; height: 32px; border-radius: 6px; border: 1px solid var(--border2);
+  background: none; cursor: pointer; font-size: 14px;
+  display: flex; align-items: center; justify-content: center; transition: all 0.15s;
+}
+.prod-edit-btn { color: var(--blue); }
+.prod-del-btn  { color: var(--red); }
+.prod-edit-btn:active { background: rgba(59,130,246,0.15); }
+.prod-del-btn:active  { background: rgba(239,68,68,0.15); }
+
+/* admin add product */
+.admin-panel {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 16px; margin-bottom: 14px;
+  display: none;
+}
+.admin-panel.open { display: block; animation: fadeUp 0.2s ease; }
+.admin-toggle-btn {
+  width: 100%; height: 52px; background: rgba(245,158,11,0.1);
+  border: 1.5px solid rgba(245,158,11,0.3); border-radius: var(--r2);
+  color: var(--amber); font-family: var(--body); font-size: 14px;
+  font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  gap: 8px; margin-bottom: 14px; transition: all 0.15s;
+}
+.admin-toggle-btn:active { background: rgba(245,158,11,0.2); }
+.save-prod-btn {
+  width: 100%; height: 52px; background: linear-gradient(135deg, var(--amber), var(--orange));
+  border: none; border-radius: var(--r2); color: #000;
+  font-family: var(--body); font-size: 15px; font-weight: 900;
+  letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer;
+  margin-top: 10px; transition: opacity 0.15s;
+}
+.save-prod-btn:active { opacity: 0.85; }
+
+/* ════════════════════════════════════════
+   UTILITY
+════════════════════════════════════════ */
+.hidden { display: none !important; }
+.divider { border: none; border-top: 1px solid var(--border); margin: 12px 0; }
+.tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11px; font-family: var(--mono); padding: 3px 8px;
+  border-radius: 5px; font-weight: 700;
+}
+.tag-setup-offgrid { background: rgba(16,185,129,0.15); color: var(--green); }
+.tag-setup-ongrid  { background: rgba(59,130,246,0.15);  color: var(--blue); }
+.tag-setup-hybrid  { background: rgba(139,92,246,0.15);  color: var(--purple); }
+
+/* toast notification */
+.toast {
+  position: fixed; bottom: calc(var(--nav-h) + 12px); left: 50%; transform: translateX(-50%);
+  background: var(--card2); border: 1px solid var(--border2);
+  color: var(--text); font-size: 14px; font-weight: 600;
+  padding: 11px 20px; border-radius: 99px; z-index: 999;
+  white-space: nowrap; opacity: 0; pointer-events: none;
+  transition: opacity 0.2s;
+}
+.toast.show { opacity: 1; }
+
+/* ════════════════════════════════════════
+   2FA MODAL SYSTEM
+════════════════════════════════════════ */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 600;
+  background: rgba(0,0,0,0.88);
+  backdrop-filter: blur(10px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px; opacity: 0; pointer-events: none;
+  transition: opacity 0.25s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal-box {
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: 18px; padding: 28px 22px; width: 100%; max-width: 370px;
+  position: relative; transform: translateY(10px);
+  transition: transform 0.25s;
+}
+.modal-overlay.open .modal-box { transform: translateY(0); }
+.modal-shield {
+  width: 56px; height: 56px; border-radius: 14px; margin: 0 auto 16px;
+  display: flex; align-items: center; justify-content: center; font-size: 28px;
+}
+.shield-lock   { background: rgba(59,130,246,0.15); border: 1px solid rgba(59,130,246,0.3); }
+.shield-setup  { background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.3); }
+.shield-danger { background: rgba(239,68,68,0.15);  border: 1px solid rgba(239,68,68,0.3); }
+.modal-title {
+  font-size: 20px; font-weight: 900; text-align: center; margin-bottom: 4px;
+  letter-spacing: 0.02em;
+}
+.modal-sub {
+  font-size: 13px; color: var(--muted2); text-align: center;
+  margin-bottom: 22px; line-height: 1.5;
+}
+.modal-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+.modal-field label {
+  font-size: 11px; font-weight: 700; color: var(--muted);
+  letter-spacing: 0.12em; text-transform: uppercase; font-family: var(--mono);
+}
+.modal-field input {
+  background: var(--card2); border: 1.5px solid var(--border);
+  border-radius: 10px; padding: 14px 16px;
+  font-size: 24px; font-family: var(--mono); font-weight: 700;
+  letter-spacing: 0.3em; text-align: center; color: var(--text);
+  min-height: 58px; outline: none; width: 100%;
+  transition: border-color 0.2s;
+}
+.modal-field input:focus { border-color: var(--amber); }
+.modal-field input.error { border-color: var(--red); animation: shake 0.35s ease; }
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  20%,60%  { transform: translateX(-6px); }
+  40%,80%  { transform: translateX(6px); }
+}
+.modal-field input.pw { letter-spacing: 0.1em; font-size: 18px; }
+
+.modal-btn {
+  width: 100%; height: 52px; border: none; border-radius: 10px;
+  font-family: var(--body); font-size: 15px; font-weight: 900;
+  letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+}
+.modal-btn:active { opacity: 0.85; transform: scale(0.98); }
+.modal-btn.primary { background: linear-gradient(135deg,var(--amber),var(--orange)); color: #000; }
+.modal-btn.danger  { background: linear-gradient(135deg,var(--red),#c0392b); color: #fff; margin-top: 8px; }
+.modal-btn.ghost   { background: none; border: 1px solid var(--border2); color: var(--muted2); margin-top: 8px; height: 44px; font-size: 13px; }
+
+.modal-error {
+  background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3);
+  border-radius: 8px; padding: 10px 14px; color: var(--red);
+  font-size: 13px; text-align: center; margin-bottom: 12px; line-height: 1.45;
+  display: none;
+}
+.modal-error.show { display: block; animation: fadeUp 0.2s ease; }
+
+.modal-success {
+  background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3);
+  border-radius: 8px; padding: 10px 14px; color: var(--green);
+  font-size: 13px; margin-bottom: 12px; line-height: 1.5;
+  display: none;
+}
+.modal-success.show { display: block; }
+
+/* TOTP code display */
+.totp-display {
+  background: var(--card2); border: 1px solid var(--border2);
+  border-radius: 10px; padding: 14px; text-align: center; margin-bottom: 14px;
+}
+.totp-code {
+  font-family: var(--mono); font-size: 36px; font-weight: 900;
+  letter-spacing: 0.18em; color: var(--amber);
+  display: block; margin-bottom: 6px;
+}
+.totp-timer-wrap { display: flex; align-items: center; gap: 8px; justify-content: center; }
+.totp-timer-bar {
+  flex: 1; height: 4px; background: var(--border); border-radius: 99px; max-width: 120px;
+}
+.totp-timer-fill {
+  height: 100%; border-radius: 99px;
+  transition: width 1s linear, background 0.5s;
+}
+.totp-timer-sec { font-family: var(--mono); font-size: 12px; color: var(--muted2); }
+
+/* step dots */
+.step-dots {
+  display: flex; justify-content: center; gap: 8px; margin-bottom: 20px;
+}
+.step-dot {
+  width: 8px; height: 8px; border-radius: 50%; background: var(--border2);
+  transition: background 0.2s, width 0.2s;
+}
+.step-dot.active { background: var(--amber); width: 24px; border-radius: 4px; }
+.step-dot.done   { background: var(--green); }
+
+/* secret key box */
+.secret-box {
+  background: var(--bg); border: 1px solid var(--border2);
+  border-radius: 10px; padding: 14px; text-align: center; margin-bottom: 14px;
+}
+.secret-key {
+  font-family: var(--mono); font-size: 18px; font-weight: 700;
+  color: var(--amber2); letter-spacing: 0.12em; word-break: break-all;
+  line-height: 1.5; display: block;
+}
+.secret-label { font-size: 11px; color: var(--muted); font-family: var(--mono); margin-bottom: 6px; display: block; letter-spacing: 0.1em; text-transform: uppercase; }
+.copy-key-btn {
+  background: none; border: 1px solid var(--border2); border-radius: 6px;
+  color: var(--muted2); font-size: 12px; font-family: var(--body);
+  padding: 5px 12px; cursor: pointer; margin-top: 8px;
+  transition: all 0.15s;
+}
+.copy-key-btn:active { background: var(--amber); color: #000; border-color: var(--amber); }
+
+/* lock badge on admin btn */
+.lock-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: rgba(59,130,246,0.15); border: 1px solid rgba(59,130,246,0.3);
+  color: var(--blue); border-radius: 5px; font-size: 10px; font-family: var(--mono);
+  padding: 2px 7px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+}
+.lock-badge.unlocked { background: rgba(16,185,129,0.15); border-color: rgba(16,185,129,0.3); color: var(--green); }
+
+/* session bar */
+.session-bar {
+  background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.25);
+  border-radius: 8px; padding: 9px 14px; margin-bottom: 12px;
+  display: none; align-items: center; justify-content: space-between; gap: 10px;
+}
+.session-bar.visible { display: flex; }
+.session-info { font-size: 12px; color: var(--green); font-family: var(--mono); }
+.session-logout {
+  background: none; border: 1px solid rgba(239,68,68,0.3); border-radius: 5px;
+  color: var(--red); font-size: 11px; font-family: var(--mono);
+  padding: 4px 10px; cursor: pointer; font-weight: 700; text-transform: uppercase;
+  transition: all 0.15s;
+}
+.session-logout:active { background: var(--red); color: white; }
+
+/* ════════════════════════════════════════
+   LANGUAGE TOGGLE
+════════════════════════════════════════ */
+.lang-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 12px 16px; margin-bottom: 14px;
+  gap: 12px;
+}
+.lang-label { font-size: 13px; font-weight: 700; color: var(--muted2); display: flex; align-items: center; gap: 6px; }
+.lang-toggle {
+  display: flex; background: var(--card2); border: 1px solid var(--border2);
+  border-radius: 99px; padding: 3px; gap: 2px; flex-shrink: 0;
+}
+.lang-btn {
+  padding: 7px 16px; border-radius: 99px; border: none; cursor: pointer;
+  font-family: var(--mono); font-size: 12px; font-weight: 800;
+  letter-spacing: 0.08em; transition: all 0.2s; background: none; color: var(--muted2);
+}
+.lang-btn.active { background: var(--amber); color: #000; }
+
+/* admin setup prompt */
+.setup-prompt {
+  background: rgba(245,158,11,0.06); border: 1px solid rgba(245,158,11,0.25);
+  border-radius: var(--r2); padding: 14px; margin-bottom: 12px;
+  display: flex; align-items: flex-start; gap: 10px;
+}
+.setup-prompt-icon { font-size: 22px; flex-shrink: 0; }
+.setup-prompt-text { font-size: 13px; color: var(--muted2); line-height: 1.5; }
+.setup-prompt-text strong { color: var(--amber); display: block; margin-bottom: 2px; }
+
+/* sub-tab bar inside learn panes */
+.learn-tabs {
+  display: flex; gap: 6px; margin-bottom: 16px;
+  background: var(--card2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 5px;
+}
+.learn-tab {
+  flex: 1; padding: 10px 6px; border: none; border-radius: 7px;
+  font-family: var(--body); font-size: 13px; font-weight: 700;
+  letter-spacing: 0.04em; cursor: pointer; text-align: center;
+  background: transparent; color: var(--muted2); transition: all 0.2s;
+}
+.learn-tab.active { background: var(--amber); color: #000; }
+
+/* formula box */
+.formula-box {
+  background: var(--bg); border: 1px solid var(--border2);
+  border-radius: var(--r2); padding: 14px 16px; margin: 10px 0;
+  font-family: var(--mono); font-size: 14px; line-height: 1.7;
+  overflow-x: auto;
+}
+.formula-box .eq {
+  color: var(--amber2); font-size: 15px; font-weight: 700;
+  display: block; margin-bottom: 4px;
+}
+.formula-box .note {
+  color: var(--muted2); font-size: 12px; font-family: var(--body);
+  line-height: 1.5; margin-top: 6px; display: block;
+}
+.formula-box .example {
+  color: var(--teal); font-size: 12px; display: block; margin-top: 4px;
+}
+
+/* formula card */
+.f-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 16px; margin-bottom: 10px;
+}
+.f-card-head {
+  display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px;
+}
+.f-badge {
+  font-family: var(--mono); font-size: 10px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 5px; flex-shrink: 0; margin-top: 2px;
+}
+.fb-amber  { background: rgba(245,158,11,0.2); color: var(--amber); border: 1px solid rgba(245,158,11,0.3); }
+.fb-green  { background: rgba(16,185,129,0.2); color: var(--green); border: 1px solid rgba(16,185,129,0.3); }
+.fb-blue   { background: rgba(59,130,246,0.2); color: var(--blue);  border: 1px solid rgba(59,130,246,0.3); }
+.fb-red    { background: rgba(239,68,68,0.2);  color: var(--red);   border: 1px solid rgba(239,68,68,0.3); }
+.fb-teal   { background: rgba(6,182,212,0.2);  color: var(--teal);  border: 1px solid rgba(6,182,212,0.3); }
+.fb-purple { background: rgba(139,92,246,0.2); color: var(--purple);border: 1px solid rgba(139,92,246,0.3); }
+.f-title { font-size: 15px; font-weight: 800; color: var(--text); }
+.f-desc  { font-size: 13px; color: var(--muted2); margin-top: 2px; line-height: 1.45; }
+
+/* AWG table */
+.awg-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; }
+.awg-table th {
+  background: var(--card2); color: var(--muted2); font-family: var(--mono);
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--border2);
+}
+.awg-table td {
+  padding: 9px 10px; border-bottom: 1px solid var(--border);
+  font-family: var(--mono); color: var(--text); font-size: 13px;
+}
+.awg-table tr:last-child td { border-bottom: none; }
+.awg-table td:first-child { color: var(--amber); font-weight: 700; }
+.awg-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+/* limit badge */
+.limit-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 12px; background: var(--card2);
+  border-radius: 6px; border: 1px solid var(--border); margin-bottom: 6px;
+}
+.limit-label { font-size: 13px; color: var(--muted2); }
+.limit-val   { font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--amber); }
+.limit-val.ok   { color: var(--green); }
+.limit-val.warn { color: var(--orange); }
+
+/* basics — component cards */
+.basics-section { margin-bottom: 6px; }
+.basics-acc {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r); overflow: hidden; margin-bottom: 10px;
+}
+.basics-acc-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px; cursor: pointer; user-select: none; gap: 12px;
+  -webkit-tap-highlight-color: transparent;
+}
+.basics-acc-head:active { background: rgba(255,255,255,0.02); }
+.basics-icon-wrap {
+  width: 42px; height: 42px; border-radius: 10px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 22px;
+}
+.basics-acc-title { flex: 1; min-width: 0; }
+.basics-acc-name  { font-size: 15px; font-weight: 800; color: var(--text); line-height: 1.2; }
+.basics-acc-sub   { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.basics-chevron   { font-size: 18px; color: var(--muted); transition: transform 0.25s; flex-shrink: 0; }
+.basics-acc.open .basics-chevron { transform: rotate(180deg); }
+.basics-body {
+  max-height: 0; overflow: hidden;
+  transition: max-height 0.35s cubic-bezier(.23,1,.32,1);
+  border-top: 0px solid var(--border);
+}
+.basics-acc.open .basics-body {
+  max-height: 2400px;
+  border-top: 1px solid var(--border);
+}
+.basics-body-inner { padding: 16px; }
+
+/* type pills inside basics */
+.type-grid { display: flex; flex-direction: column; gap: 8px; margin: 10px 0; }
+.type-card {
+  background: var(--card2); border: 1px solid var(--border);
+  border-radius: var(--r2); padding: 12px 14px;
+}
+.type-card-head { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+.type-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.type-name { font-size: 14px; font-weight: 800; color: var(--text); }
+.type-tag  {
+  margin-left: auto; font-size: 10px; font-family: var(--mono);
+  padding: 2px 7px; border-radius: 4px; font-weight: 700;
+}
+.tag-best  { background: rgba(16,185,129,0.2); color: var(--green); }
+.tag-good  { background: rgba(245,158,11,0.15); color: var(--amber); }
+.tag-budget{ background: rgba(100,116,139,0.2); color: var(--muted2); }
+.tag-warn  { background: rgba(239,68,68,0.15);  color: var(--red); }
+.type-desc { font-size: 13px; color: var(--muted2); line-height: 1.5; }
+
+/* pro-con list */
+.pro-con { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+.pro-box, .con-box {
+  border-radius: var(--r2); padding: 10px 12px;
+}
+.pro-box { background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.2); }
+.con-box { background: rgba(239,68,68,0.08);  border: 1px solid rgba(239,68,68,0.2); }
+.pro-con-head { font-size: 11px; font-weight: 800; font-family: var(--mono); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; }
+.pro-box .pro-con-head { color: var(--green); }
+.con-box .pro-con-head { color: var(--red); }
+.pro-con-item { font-size: 12px; color: var(--muted2); margin-bottom: 3px; padding-left: 8px; position: relative; line-height: 1.4; }
+.pro-con-item::before { content: '•'; position: absolute; left: 0; }
+
+/* setup type cards */
+.setup-explain-card {
+  border-radius: var(--r); padding: 16px; margin-bottom: 10px; border: 1px solid;
+}
+.sec-offgrid { background: rgba(16,185,129,0.06);  border-color: rgba(16,185,129,0.25); }
+.sec-ongrid  { background: rgba(59,130,246,0.06);  border-color: rgba(59,130,246,0.25); }
+.sec-hybrid  { background: rgba(139,92,246,0.06);  border-color: rgba(139,92,246,0.25); }
+.sec-backup  { background: rgba(245,158,11,0.06);  border-color: rgba(245,158,11,0.25); }
+.sec-head    { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.sec-icon    { font-size: 32px; }
+.sec-title   { font-size: 16px; font-weight: 900; }
+.sec-offgrid .sec-title { color: var(--green); }
+.sec-ongrid  .sec-title { color: var(--blue); }
+.sec-hybrid  .sec-title { color: var(--purple); }
+.sec-backup  .sec-title { color: var(--amber); }
+.sec-sub     { font-size: 12px; color: var(--muted2); font-family: var(--mono); }
+.sec-body    { font-size: 13px; color: var(--muted2); line-height: 1.6; }
+.sec-body strong { color: var(--text); }
+.flow-diagram {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 4px;
+  margin: 10px 0; font-family: var(--mono); font-size: 12px;
+}
+.flow-node {
+  padding: 5px 10px; border-radius: 6px;
+  font-weight: 700; font-size: 11px; text-align: center;
+}
+.flow-arrow { color: var(--muted); font-size: 14px; }
+.fn-solar   { background: rgba(245,158,11,0.2); color: var(--amber); border: 1px solid rgba(245,158,11,0.3); }
+.fn-scc     { background: rgba(59,130,246,0.2);  color: var(--blue);  border: 1px solid rgba(59,130,246,0.3); }
+.fn-bat     { background: rgba(16,185,129,0.2);  color: var(--green); border: 1px solid rgba(16,185,129,0.3); }
+.fn-inv     { background: rgba(234,88,12,0.2);   color: var(--orange);border: 1px solid rgba(234,88,12,0.3); }
+.fn-grid    { background: rgba(6,182,212,0.2);   color: var(--teal);  border: 1px solid rgba(6,182,212,0.3); }
+.fn-load    { background: rgba(100,116,139,0.2); color: var(--muted2);border: 1px solid rgba(100,116,139,0.3); }
+.fn-ats     { background: rgba(139,92,246,0.2);  color: var(--purple);border: 1px solid rgba(139,92,246,0.3); }
+.fn-brk     { background: rgba(239,68,68,0.2);   color: var(--red);   border: 1px solid rgba(239,68,68,0.3); }
+.fn-spd     { background: rgba(245,158,11,0.15); color: var(--amber2);border: 1px solid rgba(245,158,11,0.25); }
+
+/* use-for list */
+.use-list { list-style: none; margin-top: 8px; display: flex; flex-direction: column; gap: 5px; }
+.use-list li { font-size: 13px; color: var(--muted2); padding-left: 18px; position: relative; line-height: 1.45; }
+.use-list li::before { content: '✓'; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+.use-list li.no::before { content: '✗'; color: var(--red); }
+
+/* callout box */
+.callout {
+  border-radius: var(--r2); padding: 12px 14px; margin: 10px 0;
+  font-size: 13px; line-height: 1.5;
+}
+.callout.tip    { background: rgba(6,182,212,0.08);  border: 1px solid rgba(6,182,212,0.25);  color: var(--teal); }
+.callout.warn   { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25); color: var(--amber); }
+.callout.danger { background: rgba(239,68,68,0.08);  border: 1px solid rgba(239,68,68,0.25);  color: var(--red); }
+.callout strong { font-weight: 800; display: block; margin-bottom: 3px; }
+.callout span   { color: var(--muted2); }
+
+/* section divider with label */
+.s-divider {
+  display: flex; align-items: center; gap: 10px;
+  margin: 18px 0 12px; font-family: var(--mono); font-size: 11px;
+  font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--muted);
+}
+.s-divider::before, .s-divider::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+
+/* ── tablet wider layout ── */
+@media (min-width: 600px) {
+  .tab-pane { padding: 18px; max-width: 680px; margin: 0 auto; }
+  .metrics-grid { grid-template-columns: repeat(4, 1fr); }
+  .form-grid { gap: 12px; }
+  .nav-label { font-size: 11px; }
+  .prod-img { width: 110px; height: 110px; }
+  .prod-img img { width: 110px; height: 110px; }
+  .type-grid { display: grid; grid-template-columns: 1fr 1fr; }
+  .pro-con { gap: 10px; }
+}
+@media (min-width: 900px) {
+  .tab-pane { max-width: 780px; }
+  .products-grid { display: grid; grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ HEADER ══ -->
+<header class="app-header">
+  <div class="header-brand">
+    <div class="sun-orb"></div>
+    <div>
+      <div class="brand-name">Solar<span>Forge</span></div>
+      <div class="brand-sub">Pro Designer</div>
+    </div>
+  </div>
+  <button class="calc-trigger" onclick="calculate()">⚡ Calculate</button>
+</header>
+
+<!-- ══ MAIN BODY ══ -->
+<div class="app-body" id="appBody">
+
+  <!-- ─── SYSTEM CONFIG ─── -->
+  <div class="tab-pane active" id="pane-system">
+
+    <!-- Setup Type -->
+    <div class="setup-selector">
+      <span class="setup-label">Choose Your Setup Type</span>
+      <div class="setup-grid">
+        <div class="setup-card sel-offgrid active" onclick="setSetup('offgrid',this)">
+          <div class="setup-icon">🏕️</div>
+          <div class="setup-name">Off-Grid</div>
+          <div class="setup-badge">Battery + Solar<br>No Grid</div>
+        </div>
+        <div class="setup-card sel-ongrid" onclick="setSetup('ongrid',this)">
+          <div class="setup-icon">🏭</div>
+          <div class="setup-name">On-Grid</div>
+          <div class="setup-badge">Grid-Tied<br>Net Metering</div>
+        </div>
+        <div class="setup-card sel-hybrid" onclick="setSetup('hybrid',this)">
+          <div class="setup-icon">⚡</div>
+          <div class="setup-name">Hybrid</div>
+          <div class="setup-badge">Solar + Battery<br>+ Grid Backup</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="setup-banner offgrid" id="setupBanner">
+      <span class="banner-icon">🏕️</span>
+      <span id="setupBannerText">Off-Grid system: fully independent from the utility grid. Sized for battery storage and solar generation only. Common for cabins, boats, RVs, and remote properties.</span>
+    </div>
+
+    <!-- Battery Section -->
+    <div class="card" id="batterySection">
+      <div class="card-head">
+        <div class="card-icon ci-green">🔋</div>
+        <div>
+          <div class="card-title">Battery Bank</div>
+          <div class="card-subtitle">Storage configuration</div>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>System Voltage</label>
+          <select id="sysVoltage">
+            <option value="12">12 V</option>
+            <option value="24" selected>24 V</option>
+            <option value="48">48 V</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Battery Voltage</label>
+          <input type="number" id="batVoltage" placeholder="24" value="24">
+        </div>
+        <div class="field">
+          <label>Capacity (Ah)</label>
+          <input type="number" id="batAh" placeholder="200" value="200">
+        </div>
+        <div class="field">
+          <label>Battery Type</label>
+          <select id="batType">
+            <option value="lifepo4">LiFePO4</option>
+            <option value="nmc">Lithium NMC</option>
+            <option value="agm">AGM</option>
+            <option value="gel">Gel</option>
+            <option value="fla">Flooded Lead Acid</option>
+          </select>
+        </div>
+        <div class="field span2">
+          <label>BMS Current Rating (A)</label>
+          <input type="number" id="bmsCurrent" placeholder="100" value="100">
+        </div>
+      </div>
+
+      <!-- Active Balancer toggle -->
+      <div style="margin-top:12px;display:flex;align-items:center;gap:10px">
+        <input type="checkbox" id="hasBalancer" style="width:22px;height:22px;accent-color:var(--amber);min-height:unset">
+        <label for="hasBalancer" style="font-size:13px;text-transform:none;letter-spacing:0;color:var(--muted2);font-family:var(--body)">Active Balancer installed</label>
+      </div>
+    </div>
+
+    <!-- Grid Connection (On-Grid / Hybrid) -->
+    <div class="card hidden" id="gridSection">
+      <div class="card-head">
+        <div class="card-icon ci-teal">🔌</div>
+        <div>
+          <div class="card-title">Grid Connection</div>
+          <div class="card-subtitle">Utility parameters</div>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Grid Voltage (V)</label>
+          <input type="number" id="gridVoltage" placeholder="220" value="220">
+        </div>
+        <div class="field">
+          <label>Grid Frequency (Hz)</label>
+          <select id="gridFreq">
+            <option value="50">50 Hz</option>
+            <option value="60">60 Hz</option>
+          </select>
+        </div>
+        <div class="field span2">
+          <label>ATS / MTS Installed?</label>
+          <select id="atsType">
+            <option value="none">None</option>
+            <option value="ats">ATS (Automatic Transfer Switch)</option>
+            <option value="mts">MTS (Manual Transfer Switch)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Solar Panel -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-icon ci-amber">☀️</div>
+        <div>
+          <div class="card-title">Solar Panels</div>
+          <div class="card-subtitle">Generation source</div>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Total Power (W)</label>
+          <input type="number" id="panelWatts" placeholder="800" value="800">
+        </div>
+        <div class="field">
+          <label>Panel Voc (V) <span class="opt">opt</span></label>
+          <input type="number" id="panelVoltage" placeholder="40">
+        </div>
+        <div class="field">
+          <label>Peak Sun Hours</label>
+          <input type="number" id="sunHours" placeholder="5" value="5" step="0.5">
+        </div>
+        <div class="field">
+          <label>Panel Count</label>
+          <input type="number" id="panelCount" placeholder="4" value="4">
+        </div>
+      </div>
+    </div>
+
+    <!-- SCC -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-icon ci-blue">⚡</div>
+        <div>
+          <div class="card-title">Charge Controller</div>
+          <div class="card-subtitle">Solar charge controller</div>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>SCC Type</label>
+          <select id="sccType">
+            <option value="mppt">MPPT</option>
+            <option value="pwm">PWM</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>SCC Rating (A)</label>
+          <input type="number" id="sccCurrent" placeholder="60" value="60">
+        </div>
+        <div class="field span2">
+          <label>SPD Installed? (Solar)</label>
+          <select id="spdSolar">
+            <option value="none">None</option>
+            <option value="type2">Type 2 SPD</option>
+            <option value="type1">Type 1+2 SPD</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Inverter -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-icon ci-red">🔌</div>
+        <div>
+          <div class="card-title">Inverter</div>
+          <div class="card-subtitle" id="invSubtitle">DC to AC conversion</div>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Type</label>
+          <select id="invType">
+            <option value="offgrid">Off-Grid / Pure Sine</option>
+            <option value="hybrid">Hybrid (Grid+Battery)</option>
+            <option value="gridtie">Grid-Tie (No Battery)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Rated Power (W)</label>
+          <input type="number" id="invWatts" placeholder="2000" value="2000">
+        </div>
+        <div class="field">
+          <label>Surge Power <span class="opt">opt</span></label>
+          <input type="number" id="invSurge" placeholder="4000">
+        </div>
+        <div class="field">
+          <label>Efficiency</label>
+          <input type="number" id="invEff" placeholder="0.90" value="0.90" step="0.01">
+        </div>
+      </div>
+    </div>
+
+    <!-- Protection Devices -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-icon ci-red">🛡️</div>
+        <div>
+          <div class="card-title">Protection Devices</div>
+          <div class="card-subtitle">Safety components</div>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>DC SPD <span class="opt">opt</span></label>
+          <select id="spdDC">
+            <option value="none">None</option>
+            <option value="yes">Installed</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>AC SPD <span class="opt">opt</span></label>
+          <select id="spdAC">
+            <option value="none">None</option>
+            <option value="yes">Installed</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>LVD / Relay</label>
+          <select id="lvd">
+            <option value="none">None</option>
+            <option value="lvd">LVD (Low Voltage Disconnect)</option>
+            <option value="relay">Programmable Relay</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Watt / Energy Meter</label>
+          <select id="wattMeter">
+            <option value="none">None</option>
+            <option value="dc">DC Watt Meter</option>
+            <option value="ac">AC Energy Meter</option>
+            <option value="both">Both</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cable Lengths -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-icon ci-teal">🔧</div>
+        <div>
+          <div class="card-title">Cable Lengths (m)</div>
+          <div class="card-subtitle">One-way distances</div>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Panel → SCC</label>
+          <input type="number" id="cablePanel" placeholder="5" value="5">
+        </div>
+        <div class="field">
+          <label>SCC → Battery</label>
+          <input type="number" id="cableScc" placeholder="2" value="2">
+        </div>
+        <div class="field span2">
+          <label>Battery → Inverter</label>
+          <input type="number" id="cableInv" placeholder="1" value="1">
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /pane-system -->
+
+  <!-- ─── LOADS TAB ─── -->
+  <div class="tab-pane" id="pane-loads">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-icon ci-amber">💡</div>
+        <div>
+          <div class="card-title">Appliances</div>
+          <div class="card-subtitle">Your daily loads</div>
+        </div>
+      </div>
+      <div class="app-row2-labels" style="margin-bottom:6px">
+        <div class="app-mini-label">Watts (W)</div>
+        <div class="app-mini-label">Qty</div>
+        <div class="app-mini-label">Hrs/Day</div>
+      </div>
+      <div class="appliance-list" id="appList"></div>
+      <button class="add-app-btn" onclick="addAppliance()">＋ Add Appliance</button>
+    </div>
+
+    <div class="card" id="loadSummaryCard" style="display:none">
+      <div class="card-head">
+        <div class="card-icon ci-teal">📊</div>
+        <div><div class="card-title">Load Summary</div></div>
+      </div>
+      <div class="parts-list" id="loadTable"></div>
+    </div>
+  </div>
+
+  <!-- ─── RESULTS TAB ─── -->
+  <div class="tab-pane" id="pane-results">
+    <div id="resultsContent">
+      <div class="empty">
+        <div class="empty-icon">⚡</div>
+        <div class="empty-text">No Results Yet</div>
+        <div class="empty-sub">Configure your system and tap Calculate</div>
+        <button class="empty-btn" onclick="calculate()">⚡ Run Calculation</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── WIRING TAB ─── -->
+  <div class="tab-pane" id="pane-wiring">
+    <div id="wiringContent">
+      <div class="empty">
+        <div class="empty-icon">📐</div>
+        <div class="empty-text">No Wiring Data</div>
+        <div class="empty-sub">Run a calculation first</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── PRODUCTS / SHOP TAB ─── -->
+  <div class="tab-pane" id="pane-shop">
+
+    <div class="shop-header">
+      <div class="shop-header-icon">🛒</div>
+      <div class="shop-header-text">
+        <h2>Product Showcase</h2>
+        <p>Trusted gear for your solar build — tap to shop</p>
+      </div>
+    </div>
+
+    <!-- Session bar -->
+    <div class="session-bar" id="sessionBar">
+      <span class="session-info" id="sessionInfo">🔓 Admin session active</span>
+      <button class="session-logout" onclick="adminLogout()">Lock</button>
+    </div>
+
+    <!-- Setup prompt (shown when no 2FA configured) -->
+    <div class="setup-prompt" id="setupPrompt" style="display:none">
+      <span class="setup-prompt-icon">⚙️</span>
+      <div class="setup-prompt-text">
+        <strong>First-time Setup Required</strong>
+        No admin credentials found. Tap below to set up your secure 2FA admin password.
+      </div>
+    </div>
+
+    <!-- Admin toggle -->
+    <button class="admin-toggle-btn" onclick="handleAdminToggle()" id="adminToggleBtn">
+      🔒 Admin Panel &nbsp;<span class="lock-badge" id="adminLockBadge">2FA Protected</span>
+    </button>
+
+    <!-- Add Product Panel (only visible when authenticated) -->
+    <div class="admin-panel" id="adminPanel">
+      <div class="card-head" style="margin-bottom:14px">
+        <div class="card-icon ci-amber">➕</div>
+        <div><div class="card-title" id="adminTitle">Add New Product</div></div>
+      </div>
+      <div class="form-grid cols1">
+        <div class="field">
+          <label>Category</label>
+          <select id="newCat">
+            <option value="Solar Panels">☀️ Solar Panels</option>
+            <option value="Charge Controllers">⚡ Charge Controllers (MPPT/PWM)</option>
+            <option value="Batteries">🔋 Batteries</option>
+            <option value="BMS">🛡 BMS (Battery Management System)</option>
+            <option value="Active Balancer">⚖️ Active Balancer</option>
+            <option value="Inverters">🔌 Inverters</option>
+            <option value="DC Breakers">🔴 DC Breakers</option>
+            <option value="AC Breakers">🔵 AC Breakers / MCB</option>
+            <option value="Wiring & Cables">🔧 Wiring & Cables</option>
+            <option value="Wire Duct">📦 Wire Duct / Cable Trunking</option>
+            <option value="Wire Organizer">🗂 Wire Organizer / Clips</option>
+            <option value="Connectors & Screws">🔩 MC4 Connectors & Screws</option>
+            <option value="Busbars & Fuses">⚡ Busbars & Fuse Holders</option>
+            <option value="SPD">⚡ SPD Surge Protection</option>
+            <option value="Watt & Energy Meter">📟 Watt Meter / Energy Monitor</option>
+            <option value="ATS / MTS">🔄 ATS / MTS Transfer Switch</option>
+            <option value="Relay & LVD">🔁 Relay / LVD (Low Voltage Disconnect)</option>
+            <option value="Mounting Hardware">🏗 Mounting Hardware & Rails</option>
+            <option value="Tools">🛠 Tools & Accessories</option>
+            <option value="Other">📋 Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Product Name</label>
+          <input type="text" id="newName" placeholder="e.g. Renogy 200W Monocrystalline">
+        </div>
+        <div class="field">
+          <label>Description <span class="opt">opt</span></label>
+          <textarea id="newDesc" placeholder="Short description, specs, notes..."></textarea>
+        </div>
+        <div class="field">
+          <label>Price / Label <span class="opt">opt</span></label>
+          <input type="text" id="newPrice" placeholder="e.g. ₱3,200 or $89.99">
+        </div>
+        <div class="field">
+          <label>Affiliate / Shop Link</label>
+          <input type="url" id="newLink" placeholder="https://...">
+        </div>
+        <div class="field">
+          <label>Image URL <span class="opt">opt</span></label>
+          <input type="url" id="newImg" placeholder="https://...product-image.jpg">
+        </div>
+        <input type="hidden" id="editingId" value="">
+        <button class="save-prod-btn" onclick="saveProduct()">💾 Save Product</button>
+        <button style="width:100%;height:44px;background:none;border:1px solid var(--border2);border-radius:var(--r2);color:var(--muted2);font-family:var(--body);font-size:14px;font-weight:600;cursor:pointer;margin-top:8px" onclick="cancelEdit()">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Category Filter Pills -->
+    <div class="cat-pills" id="catPills"></div>
+
+    <!-- Products Grid -->
+    <div class="products-grid" id="productsGrid">
+      <div class="empty">
+        <div class="empty-icon">🛒</div>
+        <div class="empty-text">No Products Yet</div>
+        <div class="empty-sub">Tap "Manage Products" to add your affiliate links</div>
+      </div>
+    </div>
+
+  </div><!-- /pane-shop -->
+
+  <!-- ─────────────────────────────────────────────
+       FORMULAS & RULES TAB
+  ───────────────────────────────────────────── -->
+  <div class="tab-pane" id="pane-formulas">
+
+    <div style="background:linear-gradient(135deg,rgba(245,158,11,0.15),rgba(6,182,212,0.08));border:1px solid rgba(245,158,11,0.25);border-radius:var(--r);padding:16px;margin-bottom:14px;display:flex;align-items:center;gap:12px">
+      <span style="font-size:36px;flex-shrink:0">📐</span>
+      <div>
+        <div style="font-size:18px;font-weight:900;color:var(--amber)">Formulas & Design Rules</div>
+        <div style="font-size:13px;color:var(--muted2);margin-top:2px">Every calculation used in solar system design</div>
+      </div>
+    </div>
+
+    <!-- ── BATTERY ── -->
+    <div class="s-divider">🔋 Battery</div>
+
+    <div class="f-card">
+      <div class="f-card-head">
+        <span class="f-badge fb-green">Energy</span>
+        <div><div class="f-title">Battery Total Energy</div><div class="f-desc">Total energy stored in the battery bank</div></div>
+      </div>
+      <div class="formula-box">
+        <span class="eq">Battery Energy (Wh) = Voltage (V) × Capacity (Ah)</span>
+        <span class="example">Example: 24V × 200Ah = 4,800 Wh = 4.8 kWh</span>
+      </div>
+    </div>
+
+    <div class="f-card">
+      <div class="f-card-head">
+        <span class="f-badge fb-green">Usable</span>
+        <div><div class="f-title">Usable Battery Energy (DoD)</div><div class="f-desc">Energy safely available based on battery type</div></div>
+      </div>
+      <div class="formula-box">
+        <span class="eq">Usable Energy (Wh) = Voltage × Capacity × DoD</span>
+        <span class="note">Depth of Discharge (DoD) by type:</span>
+        <span class="note">• LiFePO₄ = 90% &nbsp;• Lithium NMC = 80%</span>
+        <span class="note">• AGM / Gel / Flooded Lead-Acid = 50%</span>
+        <span class="example">Example: 24V × 200Ah × 0.90 = 4,320 Wh usable</span>
+      </div>
+    </div>
+
+    <div class="f-card">
+      <div class="f-card-head">
+        <span class="f-badge fb-red">Discharge</span>
+        <div><div class="f-title">Battery Discharge Current</div><div class="f-desc">Current drawn from battery by the inverter</div></div>
+      </div>
+      <div class="formula-box">
+        <span class="eq">Discharge Current (A) = Load Watts ÷ Battery Voltage</span>
+        <span class="example">Example: 2000W ÷ 24V = 83.3A</span>
+        <span class="note">Safe discharge limits:</span>
+        <span class="note">• LiFePO₄ / NMC ≤ 1C (1× Ah rating)</span>
+        <span class="note">• Lead-Acid ≤ 0.2C – 0.3C (20–30% of Ah)</span>
+      </div>
+    </div>
+
+    <div class="f-card">
+      <div class="f-card-head">
+        <span class="f-badge fb-amber">Charge</span>
+        <div><div class="f-title">Battery Charge Rate</div><div class="f-desc">Current entering battery from solar</div></div>
+      </div>
+      <div class="formula-box">
+        <span class="eq">Charge Current (A) = Solar Panel Watts ÷ Battery Voltage</span>
+        <span class="example">Example: 800W ÷ 24V = 33.3A</span>
+        <span class="note">Safe charge rate limits:</span>
+        <span class="note">• LiFePO₄ / NMC ≤ 0.5C</span>
+        <span class="note">• Lead-Acid ≤ 0.1C – 0.2C</span>
+      </div>
+    </div>
+
+    <!-- ── SOLAR ── -->
+    <div class="s-divider">☀️ Solar Panels</div>
+
+    <div class="f-card">
+      <div class="f-card-head">
+        <span class="f-badge fb-amber">Production</span>
+        <div><div class="f-title">Daily Solar Production</div><div class="f-desc">Expected energy generated per day</div></div>
+      </div>
+      <div class="formula-box">
+        <span class="eq">Daily Production (Wh) = Panel Watts × Peak Sun Hours</span>
+        <span class="example">Example: 800W × 5h = 4,000 Wh/day</span>
+        <span class="note">Peak Sun Hours (PSH) = hours of equivalent full-sun irradiance. Tropical areas ≈ 4–6h, temperate ≈ 3–5h.</span>
+      </div>
+    </div>
+
+    <div class="f-card">
+      <div class="f-card-head">
+        <span class="f-badge fb-amber">SCC</span>
+        <div><div class="f-title">Solar Charge Current</div><div class="f-desc">Current flowing from panels into the SCC</div></div>
+      </div>
+      <div class="formula-box">
+        <span class="eq">Solar Current (A) = Panel Watts ÷ Battery Voltage</span>
+        <span class="example">Example: 800W ÷ 24V = 33.3A → need ≥40A SCC</span>
+      </div>
+    </div>
+
+    <div class="f-card">
+      <div class="f-card-head">
+        <span class="f-badge fb-blue">MPPT</span>
+        <div><div class="f-title">MPPT Oversizing Rule (130%)</div><div class="f-desc">Safe maximum panel power for an MPPT controller</div></div>
+      </div>
+      <div class="formula-box">
+        <span class="eq">Max Panel Watts = SCC Current × Battery Voltage × 1.3</span>
+        <span class="example">Example: 60A × 24V × 1.3 = 1,872W max panels</span>
+        <span class="note">MPPT can safely handle 20–30% panel oversizing because clipping only occurs at peak irradiance.</span>
+      </div>
+    </div>
+
+    <!-- ── INVERTER ── -->
+    <div class="s-divider">🔌 Inverter</div>
+
+    <div class="f-card">
+      <div class="f-card-head">
+        <span class="f-badge fb-red">Current</span>
+        <div><div class="f-title">Inverter DC Draw</div><div class="f-desc">Current pulled from battery by inverter at full load</div></div>
+      </div>
+      <div class="formula-box">
+        <span class="eq">Inverter Current (A) = Inverter Watts ÷ (Battery V × Efficiency)</span>
+        <span class="example">Example: 2000W ÷ (24V × 0.90) = 92.6A</span>
+        <span class="note">Always use efficiency (0.85–0.95). Default: 0.90</span>
+      </div>
+    </div>
+
+    <div class="f-card">
+      <div class="f-card-head">
+        <span class="f-badge fb-red">Surge</span>
+        <div><div class="f-title">Inverter Surge Current</div><div class="f-desc">Peak current during motor/compressor startup</div></div>
+      </div>
+      <div class="formula-box">
+        <span class="eq">Surge Current (A) = Surge Watts ÷ Battery Voltage</span>
+        <span class="example">Example: 4000W ÷ 24V = 166.7A surge</span>
+        <span class="note">BMS rating must exceed surge current. If BMS &lt; surge current → risk of BMS tripping or damage.</span>
+      </div>
+    </div>
+
+    <!-- ── RUNTIME ── -->
+    <div class="s-divider">⏱ Runtime & Autonomy</div>
+
+    <div class="f-card">
+      <div class="f-card-head">
+        <span class="f-badge fb-teal">Runtime</span>
+        <div><div class="f-title">Battery Runtime</div><div class="f-desc">How long battery lasts under a given load</div></div>
+      </div>
+      <div class="formula-box">
+        <span class="eq">Runtime (hrs) = Usable Energy (Wh) ÷ Load Power (W)</span>
+        <span class="example">Example: 4320Wh ÷ 500W = 8.6 hours</span>
+      </div>
+    </div>
+
+    <div class="f-card">
+      <div class="f-card-head">
+        <span class="f-badge fb-teal">Autonomy</span>
+        <div><div class="f-title">Days of Autonomy</div><div class="f-desc">Days battery can run without solar recharge</div></div>
+      </div>
+      <div class="formula-box">
+        <span class="eq">Days of Autonomy = Usable Energy (Wh) ÷ Daily Load (Wh/day)</span>
+        <span class="example">Example: 4320Wh ÷ 2160Wh/day = 2 days autonomy</span>
+      </div>
+    </div>
+
+    <div class="f-card">
+      <div class="f-card-head">
+        <span class="f-badge fb-amber">Charge</span>
+        <div><div class="f-title">Battery Charge Time</div><div class="f-desc">Time to fully charge a depleted battery</div></div>
+      </div>
+      <div class="formula-box">
+        <span class="eq">Charge Time (hrs) = Battery Total Energy (Wh) ÷ Solar Power (W)</span>
+        <span class="example">Example: 4800Wh ÷ 800W = 6 hours</span>
+        <span class="note">Actual time is longer due to CC/CV charging stages and system losses (~80% efficiency factor).</span>
+      </div>
+    </div>
+
+    <!-- ── WIRES ── -->
+    <div class="s-divider">🔧 Wire Sizing & Voltage Drop</div>
+
+    <div class="f-card">
+      <div class="f-card-head">
+        <span class="f-badge fb-teal">Design</span>
+        <div><div class="f-title">Design Current (Safety Factor)</div><div class="f-desc">Always size wire 25% above operating current</div></div>
+      </div>
+      <div class="formula-box">
+        <span class="eq">Design Current (A) = Operating Current × 1.25</span>
+        <span class="example">Example: 33.3A × 1.25 = 41.6A → use 6 AWG (60A rated)</span>
+      </div>
+    </div>
+
+    <div class="f-card">
+      <div class="f-card-head">
+        <span class="f-badge fb-teal">V-Drop</span>
+        <div><div class="f-title">Voltage Drop Calculation</div><div class="f-desc">Voltage lost across wire run (use 2× length for return)</div></div>
+      </div>
+      <div class="formula-box">
+        <span class="eq">V-Drop (V) = (2 × Length × Current × Resistance) ÷ 1000</span>
+        <span class="note">Resistance = wire resistance in mΩ/m (see AWG table below)</span>
+        <span class="note">V-Drop % = (V-Drop ÷ System Voltage) × 100</span>
+        <span class="example">Limits: Solar wires ≤ 3% &nbsp;|&nbsp; Battery/Inverter ≤ 2%</span>
+      </div>
+    </div>
+
+    <div class="f-card">
+      <div class="card-head" style="margin-bottom:8px">
+        <div class="card-icon ci-teal">📊</div>
+        <div><div class="card-title">AWG Wire Reference Table</div></div>
+      </div>
+      <table class="awg-table">
+        <thead><tr><th>AWG</th><th>Max Current</th><th>Resistance (mΩ/m)</th><th>Best Use</th></tr></thead>
+        <tbody>
+          <tr><td>14 AWG</td><td>15 A</td><td>8.286</td><td>Small loads</td></tr>
+          <tr><td>12 AWG</td><td>20 A</td><td>5.211</td><td>Lights, fans</td></tr>
+          <tr><td>10 AWG</td><td>30 A</td><td>3.277</td><td>Small panels</td></tr>
+          <tr><td>8 AWG</td><td>40 A</td><td>2.061</td><td>Panels/SCC</td></tr>
+          <tr><td>6 AWG</td><td>60 A</td><td>1.296</td><td>Panel arrays</td></tr>
+          <tr><td>4 AWG</td><td>100 A</td><td>0.815</td><td>SCC–Battery</td></tr>
+          <tr><td>2 AWG</td><td>150 A</td><td>0.513</td><td>Battery–Inv</td></tr>
+          <tr><td>1/0 AWG</td><td>200 A</td><td>0.323</td><td>High-power</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ── BREAKERS ── -->
+    <div class="s-divider">🔴 Breakers & Fuses</div>
+
+    <div class="f-card">
+      <div class="f-card-head">
+        <span class="f-badge fb-red">Breaker</span>
+        <div><div class="f-title">Breaker / Fuse Sizing</div><div class="f-desc">Protection rating for each circuit</div></div>
+      </div>
+      <div class="formula-box">
+        <span class="eq">Breaker Size (A) = Circuit Current × 1.25</span>
+        <span class="note">Round up to nearest standard size (10, 15, 20, 25, 30, 40, 50, 60, 80, 100A…)</span>
+        <span class="example">Example: 33.3A × 1.25 = 41.6A → use 50A breaker</span>
+      </div>
+      <div style="margin-top:10px">
+        <div class="limit-row"><span class="limit-label">Panel → SCC breaker</span><span class="limit-val">Solar Current × 1.25</span></div>
+        <div class="limit-row"><span class="limit-label">SCC → Battery breaker</span><span class="limit-val">SCC Rating × 1.25</span></div>
+        <div class="limit-row"><span class="limit-label">Battery → Inverter breaker</span><span class="limit-val">Inverter Current × 1.25</span></div>
+      </div>
+    </div>
+
+    <!-- ── BMS ── -->
+    <div class="s-divider">🛡 BMS Sizing</div>
+
+    <div class="f-card">
+      <div class="f-card-head">
+        <span class="f-badge fb-purple">BMS</span>
+        <div><div class="f-title">Required BMS Rating</div><div class="f-desc">BMS must handle inverter load plus safety margin</div></div>
+      </div>
+      <div class="formula-box">
+        <span class="eq">Min BMS (A) = Inverter Current × 1.25</span>
+        <span class="example">Example: 92.6A × 1.25 = 115.7A → use 120A or 150A BMS</span>
+        <span class="note">If surge current &gt; BMS rating → BMS trips under load. Always check surge!</span>
+      </div>
+    </div>
+
+    <!-- ── REQUIRED COMPONENTS ── -->
+    <div class="s-divider">📋 Required Component Sizing</div>
+
+    <div class="f-card">
+      <div class="f-card-head">
+        <span class="f-badge fb-amber">SCC</span>
+        <div><div class="f-title">Minimum SCC Size</div></div>
+      </div>
+      <div class="formula-box">
+        <span class="eq">Min SCC (A) = Solar Panel Watts ÷ Battery Voltage × 1.25</span>
+        <span class="example">Example: 800W ÷ 24V × 1.25 = 41.7A → use 50A SCC</span>
+      </div>
+    </div>
+
+    <div class="f-card">
+      <div class="f-card-head">
+        <span class="f-badge fb-amber">Panels</span>
+        <div><div class="f-title">Required Panel Power</div><div class="f-desc">Minimum panels to cover daily load</div></div>
+      </div>
+      <div class="formula-box">
+        <span class="eq">Min Panel (W) = Daily Load (Wh) ÷ Peak Sun Hours</span>
+        <span class="example">Example: 3000Wh ÷ 5h = 600W minimum panels</span>
+        <span class="note">Add 20–30% buffer for real-world losses and cloudy days.</span>
+      </div>
+    </div>
+
+    <div class="f-card">
+      <div class="f-card-head">
+        <span class="f-badge fb-green">Battery</span>
+        <div><div class="f-title">Required Battery Capacity</div><div class="f-desc">Minimum Ah for target autonomy days</div></div>
+      </div>
+      <div class="formula-box">
+        <span class="eq">Min Battery (Ah) = (Daily Load × Autonomy Days) ÷ (Voltage × DoD)</span>
+        <span class="example">Example: (3000Wh × 2 days) ÷ (24V × 0.90) = 277.8Ah → use 300Ah</span>
+      </div>
+    </div>
+
+    <div class="callout tip" style="margin-top:4px;margin-bottom:20px">
+      <strong>💡 Pro Tip</strong>
+      <span>Always oversize components by 20–25% for future expansion and to reduce stress on components — it extends their lifespan significantly.</span>
+    </div>
+
+  </div><!-- /pane-formulas -->
+
+  <!-- ─────────────────────────────────────────────
+       SOLAR BASICS TAB
+  ───────────────────────────────────────────── -->
+  <div class="tab-pane" id="pane-basics">
+    <!-- Language Toggle Bar -->
+    <div class="lang-bar">
+      <span class="lang-label">🌐 Language / Wika</span>
+      <div class="lang-toggle">
+        <button class="lang-btn active" id="btnEN" onclick="setLang('en',this)">EN</button>
+        <button class="lang-btn"        id="btnTL" onclick="setLang('tl',this)">TL</button>
+      </div>
+    </div>
+    <!-- Dynamic content rendered by renderBasics() -->
+    <div id="basicsContent"></div>
+  </div><!-- /pane-basics -->
+
+</div><!-- /app-body -->
+
+<!-- ══ BOTTOM NAV ══ -->
+<nav class="bottom-nav">
+  <button class="nav-item active" onclick="showPane('system',this)">
+    <span class="nav-icon">⚙️</span>
+    <span class="nav-label">System</span>
+  </button>
+  <button class="nav-item" onclick="showPane('loads',this)">
+    <span class="nav-icon">💡</span>
+    <span class="nav-label">Loads</span>
+  </button>
+  <button class="nav-item" onclick="showPane('results',this)">
+    <span class="nav-icon">📊</span>
+    <span class="nav-label">Results</span>
+  </button>
+  <button class="nav-item" onclick="showPane('wiring',this)">
+    <span class="nav-icon">🔧</span>
+    <span class="nav-label">Wiring</span>
+  </button>
+  <button class="nav-item" onclick="showPane('shop',this)">
+    <span class="nav-icon">🛒</span>
+    <span class="nav-label">Shop</span>
+  </button>
+  <button class="nav-item" onclick="showPane('formulas',this)">
+    <span class="nav-icon">📐</span>
+    <span class="nav-label">Formulas</span>
+  </button>
+  <button class="nav-item" onclick="showPane('basics',this)">
+    <span class="nav-icon">🌞</span>
+    <span class="nav-label">Basics</span>
+  </button>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<!-- ══════════════════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════════════════ -->
+<script>
+/* ─── constants ─── */
+const DOD = { lifepo4:.90, nmc:.80, agm:.50, gel:.50, fla:.50 };
+const BAT_NAMES = { lifepo4:'LiFePO4', nmc:'Lithium NMC', agm:'AGM', gel:'Gel', fla:'Flooded Lead Acid' };
+const AWG = [
+  { awg:'14 AWG', maxA:15,  r:8.286 },
+  { awg:'12 AWG', maxA:20,  r:5.211 },
+  { awg:'10 AWG', maxA:30,  r:3.277 },
+  { awg:'8 AWG',  maxA:40,  r:2.061 },
+  { awg:'6 AWG',  maxA:60,  r:1.296 },
+  { awg:'4 AWG',  maxA:100, r:0.815 },
+  { awg:'2 AWG',  maxA:150, r:0.513 },
+  { awg:'1/0 AWG',maxA:200, r:0.323 },
+];
+const CYCLE_LIFE = {
+  lifepo4:[{dod:'80%',c:3000},{dod:'50%',c:6000},{dod:'30%',c:9000}],
+  nmc:    [{dod:'80%',c:2000},{dod:'50%',c:3500},{dod:'30%',c:5000}],
+  agm:    [{dod:'50%',c:500 },{dod:'30%',c:700 },{dod:'20%',c:1000}],
+  gel:    [{dod:'50%',c:600 },{dod:'30%',c:900 },{dod:'20%',c:1200}],
+  fla:    [{dod:'50%',c:400 },{dod:'30%',c:600 },{dod:'20%',c:800 }],
+};
+const SETUP_INFO = {
+  offgrid: { cls:'offgrid', icon:'🏕️', text:'Off-Grid system: fully independent from the utility grid. Sized for battery storage and solar generation only. Common for cabins, boats, RVs, and remote properties.' },
+  ongrid:  { cls:'ongrid',  icon:'🏭', text:'On-Grid (Grid-Tied) system: solar feeds directly into the grid. No battery storage required. Enables net metering and lower payback period.' },
+  hybrid:  { cls:'hybrid',  icon:'⚡', text:'Hybrid system: combines battery backup with grid connectivity. Solar charges battery first, excess exports to grid. Grid can charge battery when solar is insufficient.' },
+};
+const CAT_ICONS = {
+  'Solar Panels':'☀️','Charge Controllers':'⚡','Batteries':'🔋','BMS':'🛡',
+  'Active Balancer':'⚖️','Inverters':'🔌','DC Breakers':'🔴','AC Breakers':'🔵',
+  'Wiring & Cables':'🔧','Wire Duct':'📦','Wire Organizer':'🗂',
+  'Connectors & Screws':'🔩','Busbars & Fuses':'⚡','SPD':'⚡','Watt & Energy Meter':'📟',
+  'ATS / MTS':'🔄','Relay & LVD':'🔁','Mounting Hardware':'🏗','Tools':'🛠','Other':'📋',
+};
+
+/* ─── state ─── */
+let currentSetup = 'offgrid';
+let appliances = [
+  { name:'LED Lights',      watts:20,  qty:4, hours:6  },
+  { name:'Refrigerator',    watts:150, qty:1, hours:24 },
+  { name:'Phone Chargers',  watts:10,  qty:3, hours:4  },
+  { name:'Laptop',          watts:60,  qty:1, hours:5  },
+  { name:'Electric Fan',    watts:55,  qty:2, hours:8  },
+];
+let products = [];
+let currentCat = 'All';
+
+/* ─── storage ─── */
+function loadStorage() {
+  try {
+    const p = localStorage.getItem('sf_products');
+    if (p) products = JSON.parse(p);
+  } catch(e) {}
+}
+function saveStorage() {
+  try { localStorage.setItem('sf_products', JSON.stringify(products)); } catch(e) {}
+}
+
+/* ─── helpers ─── */
+const $  = id => document.getElementById(id);
+const v  = id => parseFloat($(id).value) || 0;
+const sv = id => $(id).value;
+function getWire(a) { return AWG.find(w => w.maxA >= a) || AWG[AWG.length-1]; }
+function vDrop(len, cur, r) { return (2*len*cur*r)/1000; }
+function vDropPct(drop, sysV) { return (drop/sysV)*100; }
+function fmt(n, dec=1) { return isNaN(n)||!isFinite(n) ? '—' : n.toFixed(dec); }
+function fmtK(n) { return n>=1000 ? (n/1000).toFixed(1)+'k' : n.toFixed(0); }
+
+/* ─── toast ─── */
+function showToast(msg, dur=2200) {
+  const t = $('toast'); t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), dur);
+}
+
+/* ─── nav ─── */
+function showPane(id, el) {
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  $('pane-'+id).classList.add('active');
+  if(el) el.classList.add('active');
+  $('appBody').scrollTop = 0;
+}
+
+/* ─── setup type ─── */
+function setSetup(type, el) {
+  currentSetup = type;
+  document.querySelectorAll('.setup-card').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  const info = SETUP_INFO[type];
+  const banner = $('setupBanner');
+  banner.className = 'setup-banner ' + info.cls;
+  $('setupBannerText').textContent = info.text;
+  // Show/hide sections
+  const showGrid    = (type==='ongrid'||type==='hybrid');
+  const showBattery = (type!=='ongrid');
+  $('batterySection').classList.toggle('hidden', !showBattery);
+  $('gridSection').classList.toggle('hidden', !showGrid);
+  // Inverter subtitle
+  const subtitles = { offgrid:'Off-Grid inverter', ongrid:'Grid-Tie inverter', hybrid:'Hybrid inverter' };
+  $('invSubtitle').textContent = subtitles[type] || 'DC to AC conversion';
+}
+
+/* ─── appliances ─── */
+function addAppliance(name='',watts='',qty=1,hours=4) {
+  appliances.push({name,watts,qty,hours});
+  renderAppliances();
+}
+function removeAppliance(i) {
+  appliances.splice(i,1);
+  renderAppliances();
+  updateLoadSummary();
+}
+function renderAppliances() {
+  const list = $('appList'); list.innerHTML='';
+  appliances.forEach((a,i)=>{
+    const d = document.createElement('div');
+    d.className='app-item';
+    d.innerHTML=`
+      <div class="app-row1">
+        <input type="text" class="app-name-input" placeholder="Appliance name"
+          value="${a.name}" oninput="appliances[${i}].name=this.value">
+        <button class="app-del" onclick="removeAppliance(${i})">✕</button>
+      </div>
+      <div class="app-row2">
+        <input type="number" placeholder="Watts" value="${a.watts||''}"
+          oninput="appliances[${i}].watts=+this.value;updateLoadSummary()">
+        <input type="number" placeholder="Qty" value="${a.qty||1}" min="1"
+          oninput="appliances[${i}].qty=+this.value;updateLoadSummary()">
+        <input type="number" placeholder="Hrs" value="${a.hours||''}" step="0.5"
+          oninput="appliances[${i}].hours=+this.value;updateLoadSummary()">
+      </div>`;
+    list.appendChild(d);
+  });
+  updateLoadSummary();
+}
+function updateLoadSummary() {
+  const card = $('loadSummaryCard'), tbl = $('loadTable');
+  if(!appliances.length){card.style.display='none';return;}
+  card.style.display='block';
+  let total=0, html='';
+  appliances.forEach(a=>{
+    const daily=(a.watts||0)*(a.qty||1)*(a.hours||0);
+    total+=daily;
+    if(daily>0) html+=`<div class="part-row">
+      <div class="part-main"><div class="part-name">${a.name||'Unnamed'}</div>
+        <div class="part-sub">${a.watts||0}W × ${a.qty||1} × ${a.hours||0}h</div></div>
+      <span class="part-spec">${daily.toFixed(0)} Wh</span></div>`;
+  });
+  html+=`<div class="total-row">
+    <span class="total-label">Total Daily Load</span>
+    <span class="total-val">${total.toFixed(0)} Wh/day</span></div>`;
+  tbl.innerHTML=html;
+}
+
+/* ─── MAIN CALCULATE ─── */
+function calculate() {
+  const setup    = currentSetup;
+  const batV     = v('batVoltage') || v('sysVoltage');
+  const batAh    = v('batAh');
+  const batType  = sv('batType');
+  const bmsA     = v('bmsCurrent');
+  const panelW   = v('panelWatts');
+  const sunH     = v('sunHours') || 5;
+  const sccType  = sv('sccType');
+  const sccA     = v('sccCurrent');
+  const invW     = v('invWatts');
+  const invSurge = v('invSurge');
+  const invEff   = v('invEff') || 0.90;
+  const cableP   = v('cablePanel');
+  const cableS   = v('cableScc');
+  const cableI   = v('cableInv');
+  const hasBalancer = $('hasBalancer').checked;
+  const atsType  = sv('atsType');
+  const wattMeter= sv('wattMeter');
+  const lvd      = sv('lvd');
+  const spdSolar = sv('spdSolar');
+  const spdDC    = sv('spdDC');
+  const spdAC    = sv('spdAC');
+
+  const dod        = setup==='ongrid' ? 0 : DOD[batType];
+  const batEnergy  = batV * batAh;
+  const usableEnergy = batEnergy * dod;
+  const solarCurrent = panelW / batV;
+  const invCurrent   = invW / batV / invEff;
+  const surgeCurrent = invSurge ? invSurge/batV : 0;
+  const solarProd    = panelW * sunH;
+  const totalLoad    = appliances.reduce((s,a)=>s+(a.watts||0)*(a.qty||1)*(a.hours||0),0);
+  const avgLoadW     = totalLoad / 24;
+  const chargeTime   = panelW > 0 ? batEnergy/panelW : 0;
+  const runtime      = avgLoadW > 0 ? usableEnergy/avgLoadW : invW > 0 ? usableEnergy/invW : 0;
+  const daysAuto     = totalLoad > 0 ? usableEnergy/totalLoad : null;
+  const chargeCurrent= panelW / batV;
+  const dischargeCurrent = invW / batV;
+  const safeDischarge= batType.match(/lifepo4|nmc/) ? batAh : batAh*0.25;
+  const safeCharge   = batType.match(/lifepo4|nmc/) ? batAh*0.5 : batAh*0.2;
+  const maxPanelW    = sccType==='mppt' ? sccA*batV*1.3 : sccA*batV;
+
+  // wire sizing
+  const panelDesignA = solarCurrent*1.25;
+  const sccDesignA   = solarCurrent*1.25;
+  const invDesignA   = invCurrent*1.25;
+  const wireP = getWire(panelDesignA);
+  const wireS = getWire(sccDesignA);
+  const wireI = getWire(invDesignA);
+  const dropP     = vDrop(cableP, solarCurrent, wireP.r);
+  const dropS     = vDrop(cableS, solarCurrent, wireS.r);
+  const dropI     = vDrop(cableI, invCurrent,   wireI.r);
+  const dropPpct  = vDropPct(dropP, batV);
+  const dropSpct  = vDropPct(dropS, batV);
+  const dropIpct  = vDropPct(dropI, batV);
+  const brkPanel  = Math.ceil(solarCurrent*1.25/5)*5;
+  const brkScc    = Math.ceil(sccA*1.25/5)*5;
+  const brkInv    = Math.ceil(invCurrent*1.25/5)*5;
+
+  /* ── warnings ── */
+  const W = [];
+  const warn=(type,title,msg)=>W.push({type,title,msg});
+
+  if(setup!=='ongrid'){
+    if(solarCurrent > sccA)
+      warn('err','⚠ Solar Exceeds SCC',`Panel current ${solarCurrent.toFixed(1)}A > SCC ${sccA}A. Need ≥${(solarCurrent*1.25).toFixed(0)}A SCC.`);
+    else if(sccType==='mppt' && panelW > maxPanelW)
+      warn('warn','⚠ Panel Oversized (MPPT)',`Max safe: ${maxPanelW.toFixed(0)}W. You have ${panelW}W. Reduce panels or upgrade SCC.`);
+    else
+      warn('ok','✓ Panel–SCC Compatible',`${solarCurrent.toFixed(1)}A solar current within ${sccA}A SCC rating.`);
+
+    if(totalLoad>0){
+      if(solarProd < totalLoad)
+        warn('warn','⚠ Insufficient Solar',`Production ${solarProd.toFixed(0)}Wh < Load ${totalLoad.toFixed(0)}Wh/day. Need ≥${(totalLoad/sunH).toFixed(0)}W panels.`);
+      else
+        warn('ok','✓ Solar Covers Daily Load',`Surplus: +${(solarProd-totalLoad).toFixed(0)}Wh/day. Recharge possible.`);
+    }
+
+    if(invCurrent > bmsA)
+      warn('err','⚠ BMS Too Small',`Inverter draws ${invCurrent.toFixed(1)}A > BMS ${bmsA}A. Need BMS ≥${(invCurrent*1.25).toFixed(0)}A.`);
+    else
+      warn('ok','✓ BMS–Inverter Compatible',`Inverter ${invCurrent.toFixed(1)}A within BMS ${bmsA}A.`);
+
+    if(invSurge && surgeCurrent > bmsA)
+      warn('err','⚠ BMS Surge Risk',`Surge ${surgeCurrent.toFixed(1)}A > BMS ${bmsA}A. Upgrade BMS or choose lower-surge inverter.`);
+
+    if(dischargeCurrent > safeDischarge)
+      warn('warn','⚠ High Discharge Rate',`${dischargeCurrent.toFixed(1)}A discharge exceeds safe ${safeDischarge.toFixed(0)}A for ${BAT_NAMES[batType]}.`);
+    if(chargeCurrent > safeCharge)
+      warn('warn','⚠ High Charge Rate',`${chargeCurrent.toFixed(1)}A charge > safe ${safeCharge.toFixed(0)}A for ${BAT_NAMES[batType]}.`);
+    if(hasBalancer)
+      warn('ok','✓ Active Balancer Detected',`Cell balancing active. Extends cycle life and maintains battery health.`);
+  }
+
+  if(dropPpct>3) warn('warn','⚠ Panel Wire Voltage Drop',`${dropPpct.toFixed(1)}% on Panel→SCC exceeds 3% limit. Shorten run or upsize to ${AWG[Math.min(AWG.indexOf(wireP)+1,AWG.length-1)].awg}.`);
+  if(dropIpct>2) warn('warn','⚠ Battery Wire Voltage Drop',`${dropIpct.toFixed(1)}% on Battery→Inverter exceeds 2% limit. Shorten run or upsize wire.`);
+
+  if(spdSolar==='none'&&setup!=='ongrid') warn('info','ℹ SPD Recommended (Solar)',`Install a Type 2 DC SPD between panels and SCC to protect against lightning surges.`);
+  if(spdDC==='none'&&setup!=='ongrid')    warn('info','ℹ DC SPD Not Installed',`A DC surge protection device on the battery side is recommended.`);
+  if(spdAC==='none')                       warn('info','ℹ AC SPD Not Installed',`Install an AC SPD on the output side to protect connected appliances.`);
+  if(atsType==='none'&&setup==='hybrid')   warn('info','ℹ ATS/MTS Recommended',`A transfer switch is needed for safe switching between solar and grid power.`);
+  if(lvd==='none'&&batType.match(/agm|gel|fla/)) warn('warn','⚠ LVD Recommended',`Lead-acid batteries should have an LVD installed to prevent deep discharge damage.`);
+  if(wattMeter==='none') warn('info','ℹ Watt Meter Suggested',`A watt/energy meter lets you monitor real-time consumption and solar production.`);
+
+  /* ── bottleneck ── */
+  const scores = {
+    'Solar':   Math.min(100, (solarProd/Math.max(totalLoad||invW*8,1))*100),
+    'SCC':     Math.min(100, (sccA/Math.max(solarCurrent,0.01))*80),
+    'Battery': setup==='ongrid'?100:Math.min(100,(usableEnergy/Math.max(totalLoad||invW*4,1))*100),
+    'BMS':     setup==='ongrid'?100:Math.min(100,(bmsA/Math.max(invCurrent,0.01))*80),
+    'Inverter':Math.min(100,(invW/Math.max(totalLoad||100,1))*100),
+  };
+  const bneckKey = Object.keys(scores).reduce((a,b)=>scores[a]<scores[b]?a:b);
+
+  /* ── BUILD RESULTS ── */
+  const setupTag = `<span class="tag tag-setup-${currentSetup}">${SETUP_INFO[currentSetup].icon} ${currentSetup.toUpperCase()}</span>`;
+  let html = '';
+
+  // header
+  html += `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+    <span style="font-size:18px;font-weight:900;letter-spacing:0.04em">System Results</span>
+    ${setupTag}
+  </div>`;
+
+  // key metrics
+  html += `<div class="metrics-grid">
+    <div class="metric-card"><div class="metric-label">Battery Energy</div><div class="metric-val">${fmt(batEnergy/1000,2)}<span class="metric-unit"> kWh</span></div></div>
+    <div class="metric-card"><div class="metric-label">Usable Energy</div><div class="metric-val">${fmt(usableEnergy/1000,2)}<span class="metric-unit"> kWh</span></div></div>
+    <div class="metric-card"><div class="metric-label">Solar/Day</div><div class="metric-val">${fmtK(solarProd)}<span class="metric-unit"> Wh</span></div></div>
+    <div class="metric-card"><div class="metric-label">Daily Load</div><div class="metric-val">${fmtK(totalLoad)}<span class="metric-unit"> Wh</span></div></div>
+    <div class="metric-card"><div class="metric-label">Runtime</div><div class="metric-val">${fmt(runtime,1)}<span class="metric-unit"> hrs</span></div></div>
+    <div class="metric-card"><div class="metric-label">Days Autonomy</div><div class="metric-val">${daysAuto!==null?fmt(daysAuto,1):'—'}<span class="metric-unit">${daysAuto!==null?' days':''}</span></div></div>
+    <div class="metric-card"><div class="metric-label">Charge Time</div><div class="metric-val">${fmt(chargeTime,1)}<span class="metric-unit"> hrs</span></div></div>
+    <div class="metric-card"><div class="metric-label">Inverter Current</div><div class="metric-val">${fmt(invCurrent,1)}<span class="metric-unit"> A</span></div></div>
+  </div>`;
+
+  // compatibility
+  html += `<div class="micro-head">Compatibility & Warnings</div>`;
+  html += `<div class="alert-list">`;
+  W.forEach(w=>{ html+=`<div class="alert-item ${w.type}"><div class="alert-title">${w.title}</div><div class="alert-body">${w.msg}</div></div>`; });
+  html += `</div>`;
+
+  // bottleneck
+  html += `<div class="micro-head">System Bottleneck</div>`;
+  html += `<div class="card" style="padding:14px">`;
+  html += `<div style="font-size:12px;color:var(--muted);font-family:var(--mono);margin-bottom:10px">Weakest component: <strong style="color:var(--red)">${bneckKey}</strong></div>`;
+  Object.entries(scores).forEach(([name,score])=>{
+    const clr = score===Math.min(...Object.values(scores))
+      ? 'var(--red)' : score>79 ? 'var(--green)' : 'var(--amber)';
+    html+=`<div class="bneck-row">
+      <span class="bneck-name">${name}</span>
+      <div class="bneck-track"><div class="bneck-fill" style="width:${Math.min(score,100)}%;background:${clr}"></div></div>
+      <span class="bneck-pct" style="color:${clr}">${Math.min(Math.round(score),100)}%</span>
+    </div>`;
+  });
+  html += `</div>`;
+
+  // cycle life
+  if(setup!=='ongrid'){
+    html += `<div class="micro-head">Battery Cycle Life — ${BAT_NAMES[batType]}</div>`;
+    html += `<div class="cycle-grid">`;
+    (CYCLE_LIFE[batType]||CYCLE_LIFE.fla).forEach(c=>{
+      const yrs=(c.c/365).toFixed(1);
+      html+=`<div class="cycle-card"><div class="cycle-dod">${c.dod} DoD</div><div class="cycle-val">${c.c.toLocaleString()}</div><div class="cycle-yrs">≈${yrs} yrs</div></div>`;
+    });
+    html += `</div>`;
+  }
+
+  // voltage drops
+  html += `<div class="micro-head">Voltage Drop Analysis</div>`;
+  html += `<div class="parts-list">
+    <div class="part-row"><div class="part-main"><div class="part-name">Panel → SCC</div><div class="part-sub">${cableP}m @ ${solarCurrent.toFixed(1)}A</div></div><span class="part-spec" style="color:${dropPpct>3?'var(--red)':'var(--green)'}">${dropPpct.toFixed(2)}%</span></div>
+    <div class="part-row"><div class="part-main"><div class="part-name">SCC → Battery</div><div class="part-sub">${cableS}m @ ${solarCurrent.toFixed(1)}A</div></div><span class="part-spec" style="color:${dropSpct>2?'var(--red)':'var(--green)'}">${dropSpct.toFixed(2)}%</span></div>
+    <div class="part-row"><div class="part-main"><div class="part-name">Battery → Inverter</div><div class="part-sub">${cableI}m @ ${invCurrent.toFixed(1)}A</div></div><span class="part-spec" style="color:${dropIpct>2?'var(--red)':'var(--green)'}">${dropIpct.toFixed(2)}%</span></div>
+  </div>`;
+
+  // tier compare
+  html += `<div class="micro-head">Budget vs Pro System</div>`;
+  html += `<div class="tier-compare">
+    <div class="tier-card">
+      <div class="tier-head">⬜ Budget</div>
+      <div class="tier-row">Panels: <strong>${Math.round(panelW*0.6)}W</strong></div>
+      <div class="tier-row">Battery: <strong>${Math.round(batAh*0.7)}Ah</strong></div>
+      <div class="tier-row">Controller: <strong>PWM</strong></div>
+    </div>
+    <div class="tier-card pro">
+      <div class="tier-head">⭐ Pro</div>
+      <div class="tier-row">Panels: <strong>${Math.round(panelW*1.3)}W</strong></div>
+      <div class="tier-row">Battery: <strong>${Math.round(batAh*1.5)}Ah</strong></div>
+      <div class="tier-row">Controller: <strong>MPPT</strong></div>
+    </div>
+  </div>`;
+
+  $('resultsContent').innerHTML=html;
+
+  /* ── BUILD WIRING ── */
+  let whtml='';
+  // wiring diagram
+  whtml += `<div class="card">
+    <div class="card-head"><div class="card-icon ci-amber">📐</div><div><div class="card-title">Wiring Diagram</div></div></div>
+    <div class="wiring-scroll"><div class="wiring-flow">`;
+  whtml += `<div class="wnode panel">☀️<br>Panel<br>${panelW}W</div><div class="warrow">→</div>`;
+  whtml += `<div class="wnode breaker">DC Brk<br>${brkPanel}A</div><div class="warrow">→</div>`;
+  if(spdSolar!=='none') { whtml+=`<div class="wnode breaker">SPD<br>${spdSolar}</div><div class="warrow">→</div>`; }
+  whtml += `<div class="wnode scc">${sccType.toUpperCase()}<br>${sccA}A</div><div class="warrow">→</div>`;
+  whtml += `<div class="wnode battery">🔋<br>${batV}V/${batAh}Ah</div><div class="warrow">→</div>`;
+  if(setup==='hybrid'&&atsType!=='none') { whtml+=`<div class="wnode ats">${atsType.toUpperCase()}</div><div class="warrow">↕</div><div class="wnode grid">🏭<br>Grid</div><div class="warrow">→</div>`; }
+  whtml += `<div class="wnode inverter">⚡<br>Inv<br>${invW}W</div><div class="warrow">→</div>`;
+  if(setup==='ongrid') { whtml+=`<div class="wnode grid">🏭<br>Grid</div><div class="warrow">→</div>`; }
+  whtml += `<div class="wnode load">🏠<br>Load</div>`;
+  whtml += `</div></div></div>`;
+
+  // wire sizes
+  whtml += `<div class="card">
+    <div class="card-head"><div class="card-icon ci-teal">🔧</div><div><div class="card-title">Wire Sizing</div></div></div>
+    <div class="parts-list">
+      <div class="part-row"><div class="part-main"><div class="part-name">Panel → SCC</div><div class="part-sub">${panelDesignA.toFixed(1)}A design current (×1.25)</div></div><span class="part-spec">${wireP.awg}</span></div>
+      <div class="part-row"><div class="part-main"><div class="part-name">SCC → Battery</div><div class="part-sub">${sccDesignA.toFixed(1)}A design current</div></div><span class="part-spec">${wireS.awg}</span></div>
+      <div class="part-row"><div class="part-main"><div class="part-name">Battery → Inverter</div><div class="part-sub">${invDesignA.toFixed(1)}A design current</div></div><span class="part-spec">${wireI.awg}</span></div>
+    </div>
+  </div>`;
+
+  // breakers
+  whtml += `<div class="card">
+    <div class="card-head"><div class="card-icon ci-red">🔴</div><div><div class="card-title">DC Breaker Sizes</div></div></div>
+    <div class="parts-list">
+      <div class="part-row"><div class="part-main"><div class="part-name">Panel → SCC</div><div class="part-sub">Current × 1.25 → next 5A step</div></div><span class="part-spec">${brkPanel}A</span></div>
+      <div class="part-row"><div class="part-main"><div class="part-name">SCC → Battery</div><div class="part-sub">SCC rated current × 1.25</div></div><span class="part-spec">${brkScc}A</span></div>
+      <div class="part-row"><div class="part-main"><div class="part-name">Battery → Inverter</div><div class="part-sub">Inverter current × 1.25</div></div><span class="part-spec">${brkInv}A</span></div>
+    </div>
+  </div>`;
+
+  // protection notes
+  let protHtml = '';
+  if(spdSolar!=='none')  protHtml+=`<div class="part-row"><div class="part-main"><div class="part-name">Solar SPD</div></div><span class="part-spec" style="color:var(--green)">${spdSolar} ✓</span></div>`;
+  if(spdDC!=='none')     protHtml+=`<div class="part-row"><div class="part-main"><div class="part-name">DC SPD</div></div><span class="part-spec" style="color:var(--green)">Installed ✓</span></div>`;
+  if(spdAC!=='none')     protHtml+=`<div class="part-row"><div class="part-main"><div class="part-name">AC SPD</div></div><span class="part-spec" style="color:var(--green)">Installed ✓</span></div>`;
+  if(atsType!=='none')   protHtml+=`<div class="part-row"><div class="part-main"><div class="part-name">Transfer Switch</div></div><span class="part-spec" style="color:var(--green)">${atsType.toUpperCase()} ✓</span></div>`;
+  if(lvd!=='none')       protHtml+=`<div class="part-row"><div class="part-main"><div class="part-name">LVD / Relay</div></div><span class="part-spec" style="color:var(--green)">${lvd.toUpperCase()} ✓</span></div>`;
+  if(hasBalancer)        protHtml+=`<div class="part-row"><div class="part-main"><div class="part-name">Active Balancer</div></div><span class="part-spec" style="color:var(--green)">Installed ✓</span></div>`;
+  if(wattMeter!=='none') protHtml+=`<div class="part-row"><div class="part-main"><div class="part-name">Watt Meter</div></div><span class="part-spec" style="color:var(--green)">${wattMeter.toUpperCase()} ✓</span></div>`;
+  if(protHtml){
+    whtml+=`<div class="card">
+      <div class="card-head"><div class="card-icon ci-green">✅</div><div><div class="card-title">Protection Devices</div></div></div>
+      <div class="parts-list">${protHtml}</div></div>`;
+  }
+
+  if(sccType==='mppt'){
+    whtml+=`<div class="card">
+      <div class="card-head"><div class="card-icon ci-blue">📐</div><div><div class="card-title">MPPT Sizing Rule (130%)</div></div></div>
+      <div class="alert-item info">
+        <div class="alert-title">Max Panel Power</div>
+        <div class="alert-body">SCC ${sccA}A × ${batV}V × 1.3 = <strong>${maxPanelW.toFixed(0)}W</strong>.<br>Your panels: ${panelW}W — ${panelW<=maxPanelW?'<strong style="color:var(--green)">✓ Within limit</strong>':'<strong style="color:var(--red)">⚠ Over limit</strong>'}.</div>
+      </div>
+    </div>`;
+  }
+
+  $('wiringContent').innerHTML=whtml;
+
+  showPane('results', document.querySelectorAll('.nav-item')[2]);
+  showToast('✓ Calculation complete');
+}
+
+/* ══════════════════════════════════════════
+   2FA — CRYPTO UTILITIES
+══════════════════════════════════════════ */
+const B32_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+
+function base32Decode(str) {
+  str = str.toUpperCase().replace(/=+$/,'').replace(/\s/g,'');
+  let bits=0, val=0;
+  const out=[];
+  for(const c of str){
+    const idx=B32_CHARS.indexOf(c);
+    if(idx<0) continue;
+    val=(val<<5)|idx; bits+=5;
+    if(bits>=8){out.push((val>>>(bits-8))&0xff);bits-=8;}
+  }
+  return new Uint8Array(out);
+}
+
+function generateSecret(){
+  const b=new Uint8Array(20);
+  crypto.getRandomValues(b);
+  return Array.from(b).map(x=>B32_CHARS[x%32]).join('');
+}
+
+async function computeTOTP(secret,counter){
+  const key=base32Decode(secret);
+  const msg=new Uint8Array(8);
+  let c=counter;
+  for(let i=7;i>=0;i--){msg[i]=c&0xff;c=Math.floor(c/256);}
+  const ck=await crypto.subtle.importKey('raw',key,{name:'HMAC',hash:'SHA-1'},false,['sign']);
+  const sig=await crypto.subtle.sign('HMAC',ck,msg);
+  const h=new Uint8Array(sig);
+  const off=h[19]&0xf;
+  const code=((h[off]&0x7f)<<24)|((h[off+1]&0xff)<<16)|((h[off+2]&0xff)<<8)|(h[off+3]&0xff);
+  return String(code%1000000).padStart(6,'0');
+}
+
+async function verifyTOTP(secret,token){
+  const t=Math.floor(Date.now()/1000/30);
+  for(const d of [-1,0,1]){
+    if(await computeTOTP(secret,t+d)===token) return true;
+  }
+  return false;
+}
+
+async function hashPw(pw){
+  const enc=new TextEncoder().encode(pw+'::SF_SALT_v1::'+pw.length);
+  const h=await crypto.subtle.digest('SHA-256',enc);
+  return Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+/* ══════════════════════════════════════════
+   2FA — STATE & SESSION
+══════════════════════════════════════════ */
+let adminSession = null;   // { expires: timestamp }
+let loginAttempts = 0;
+let lockoutUntil  = 0;
+let timerInterval = null;
+let pendingSetupSecret = '';
+let pendingSetupPwHash  = '';
+let pendingAction = null;  // 'open' | 'edit:{id}' | 'delete:{id}'
+
+const SESSION_MINS = 20;
+
+function isSessionValid(){
+  return adminSession && Date.now() < adminSession.expires;
+}
+function startSession(){
+  adminSession = { expires: Date.now() + SESSION_MINS*60*1000 };
+  updateSessionUI();
+}
+function adminLogout(){
+  adminSession = null;
+  updateSessionUI();
+  if($('adminPanel').classList.contains('open')) cancelEdit();
+  showToast('🔒 Admin session locked');
+}
+function updateSessionUI(){
+  const bar=$('sessionBar');
+  const badge=$('adminLockBadge');
+  if(isSessionValid()){
+    bar.classList.add('visible');
+    const mins=Math.ceil((adminSession.expires-Date.now())/60000);
+    $('sessionInfo').textContent=`🔓 Admin session · expires in ${mins}m`;
+    badge.textContent='Session Active';
+    badge.className='lock-badge unlocked';
+  } else {
+    bar.classList.remove('visible');
+    badge.textContent='2FA Protected';
+    badge.className='lock-badge';
+    if($('adminPanel').classList.contains('open')) cancelEdit();
+  }
+}
+
+/* ── check/refresh session timer ── */
+setInterval(()=>{
+  if(adminSession && Date.now()>adminSession.expires){
+    adminSession=null; updateSessionUI();
+    showToast('⏱ Admin session expired');
+  }
+  if(isSessionValid()) updateSessionUI();
+},30000);
+
+/* ══════════════════════════════════════════
+   2FA — MODAL HELPERS
+══════════════════════════════════════════ */
+function openModal(id){ $(id).classList.add('open'); }
+function closeModal(id){
+  $(id).classList.remove('open');
+  if(id==='modal2faLogin'){ stopLoginTimer(); loginAttempts=0; }
+}
+
+function has2FA(){
+  try{
+    return !!(localStorage.getItem('sf_pw_hash') && localStorage.getItem('sf_totp_secret'));
+  }catch(e){return false;}
+}
+
+/* ── LOGIN TIMER ── */
+function startLoginTimer(){
+  stopLoginTimer();
+  function tick(){
+    const sec=Math.floor((Math.ceil(Date.now()/1000/30)*30*1000-Date.now())/1000);
+    const pct=(sec/30)*100;
+    const bar=$('loginTimerBar');
+    const txt=$('loginTimerSec');
+    if(bar){bar.style.width=pct+'%'; bar.style.background=sec<10?'var(--red)':'var(--amber)';}
+    if(txt) txt.textContent=sec+'s';
+  }
+  tick();
+  timerInterval=setInterval(tick,1000);
+}
+function stopLoginTimer(){ if(timerInterval){clearInterval(timerInterval);timerInterval=null;} }
+
+/* ══════════════════════════════════════════
+   2FA — MAIN GATE
+══════════════════════════════════════════ */
+function handleAdminToggle(){
+  // If already open and authenticated → close
+  if($('adminPanel').classList.contains('open')){ cancelEdit(); return; }
+  // If session valid → open directly
+  if(isSessionValid()){ openAdminPanel(); return; }
+  // No 2FA set up yet → setup flow
+  if(!has2FA()){
+    $('setupPrompt').style.display='flex';
+    resetSetupModal();
+    openModal('modal2faSetup');
+    return;
+  }
+  // Login required
+  $('loginErr').classList.remove('show');
+  $('loginPw').value=''; $('loginOtp').value='';
+  pendingAction='open';
+  openModal('modal2faLogin');
+  startLoginTimer();
+  setTimeout(()=>$('loginPw').focus(),300);
+}
+
+function openAdminPanel(){
+  clearAdminForm();
+  $('adminPanel').classList.add('open');
+  $('adminToggleBtn').innerHTML='✕ Close Admin &nbsp;<span class="lock-badge unlocked">Session Active</span>';
+  $('appBody').scrollTop=0;
+  $('setupPrompt').style.display='none';
+}
+
+/* ══════════════════════════════════════════
+   SETUP FLOW
+══════════════════════════════════════════ */
+function resetSetupModal(){
+  ['setupStep1','setupStep2','setupStep3'].forEach((id,i)=>$(id).style.display=i===0?'block':'none');
+  $('setupPw1').value=''; $('setupPw2').value='';
+  $('setupVerifyCode').value='';
+  $('setupErr').classList.remove('show');
+  $('setupOk').classList.remove('show');
+  $('sdot1').className='step-dot active';
+  $('sdot2').className='step-dot';
+  $('sdot3').className='step-dot';
+  $('setupTitle').textContent='Create Admin Password';
+  $('setupSub').textContent='Set a strong password. At least 8 characters recommended.';
+  pendingSetupSecret=''; pendingSetupPwHash='';
+}
+
+async function setupStep1Next(){
+  const p1=$('setupPw1').value, p2=$('setupPw2').value;
+  const err=$('setupErr');
+  if(p1.length<6){err.textContent='Password must be at least 6 characters.';err.classList.add('show');return;}
+  if(p1!==p2){err.textContent='Passwords do not match.';err.classList.add('show');
+    $('setupPw1').classList.add('error');$('setupPw2').classList.add('error');
+    setTimeout(()=>{$('setupPw1').classList.remove('error');$('setupPw2').classList.remove('error');},500);
+    return;}
+  err.classList.remove('show');
+  pendingSetupPwHash = await hashPw(p1);
+  pendingSetupSecret = generateSecret();
+  // Format secret for readability
+  const fmtSecret = pendingSetupSecret.match(/.{1,4}/g).join(' ');
+  $('setupSecretDisplay').textContent=fmtSecret;
+  $('setupStep1').style.display='none';
+  $('setupStep2').style.display='block';
+  $('sdot1').className='step-dot done';
+  $('sdot2').className='step-dot active';
+  $('setupTitle').textContent='Add to Authenticator App';
+  $('setupSub').textContent='Step 2 of 3 — Copy the key into Google Authenticator or Authy.';
+}
+
+function setupStep2Next(){
+  $('setupStep2').style.display='none';
+  $('setupStep3').style.display='block';
+  $('sdot2').className='step-dot done';
+  $('sdot3').className='step-dot active';
+  $('setupTitle').textContent='Verify Authenticator Code';
+  $('setupSub').textContent='Step 3 of 3 — Enter the 6-digit code from your app to confirm.';
+  setTimeout(()=>$('setupVerifyCode').focus(),200);
+}
+
+function setupBack(){
+  $('setupStep2').style.display='none';
+  $('setupStep1').style.display='block';
+  $('sdot2').className='step-dot';
+  $('sdot1').className='step-dot active';
+  $('setupTitle').textContent='Create Admin Password';
+  $('setupSub').textContent='Set a strong password. At least 8 characters recommended.';
+}
+function setupBack2(){
+  $('setupStep3').style.display='none';
+  $('setupStep2').style.display='block';
+  $('sdot3').className='step-dot';
+  $('sdot2').className='step-dot active';
+  $('setupTitle').textContent='Add to Authenticator App';
+  $('setupSub').textContent='Step 2 of 3 — Copy the key into Google Authenticator or Authy.';
+}
+
+async function setupStep3Verify(){
+  const code=$('setupVerifyCode').value.trim();
+  if(code.length!==6){showSetupErr('Enter the 6-digit code from your app.');return;}
+  const valid=await verifyTOTP(pendingSetupSecret, code);
+  if(!valid){
+    showSetupErr('Code is incorrect or expired. Wait for the next code and try again.');
+    $('setupVerifyCode').classList.add('error');
+    setTimeout(()=>$('setupVerifyCode').classList.remove('error'),500);
+    return;
+  }
+  // Save credentials
+  try{
+    localStorage.setItem('sf_pw_hash',  pendingSetupPwHash);
+    localStorage.setItem('sf_totp_secret', pendingSetupSecret);
+  }catch(e){}
+  $('setupOk').textContent='✓ 2FA setup complete! Admin panel is now protected.';
+  $('setupOk').classList.add('show');
+  $('setupErr').classList.remove('show');
+  setTimeout(()=>{
+    closeModal('modal2faSetup');
+    startSession();
+    openAdminPanel();
+    showToast('✓ Admin 2FA activated');
+  },1500);
+}
+
+function showSetupErr(msg){
+  $('setupErr').textContent=msg;$('setupErr').classList.add('show');
+}
+
+function copySecret(){
+  const s=pendingSetupSecret;
+  if(navigator.clipboard) navigator.clipboard.writeText(s).then(()=>showToast('📋 Key copied'));
+  else { const ta=document.createElement('textarea');ta.value=s;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);showToast('📋 Key copied'); }
+}
+
+/* ══════════════════════════════════════════
+   LOGIN FLOW
+══════════════════════════════════════════ */
+async function verifyLogin(){
+  const now=Date.now();
+  if(now<lockoutUntil){
+    const secs=Math.ceil((lockoutUntil-now)/1000);
+    $('lockoutMsg').textContent=`Too many failed attempts. Try again in ${secs}s.`;
+    $('lockoutMsg').style.display='block';
+    return;
+  }
+  $('lockoutMsg').style.display='none';
+  const pw=$('loginPw').value;
+  const otp=$('loginOtp').value.trim();
+  if(!pw||otp.length!==6){
+    showLoginErr('Enter your password and 6-digit code.');return;
+  }
+  const storedHash=localStorage.getItem('sf_pw_hash')||'';
+  const storedSecret=localStorage.getItem('sf_totp_secret')||'';
+  const pwHash=await hashPw(pw);
+  const pwOk=(pwHash===storedHash);
+  const otpOk=await verifyTOTP(storedSecret,otp);
+  if(!pwOk||!otpOk){
+    loginAttempts++;
+    if(loginAttempts>=3){
+      lockoutUntil=Date.now()+30000;
+      loginAttempts=0;
+      showLoginErr('3 failed attempts. Locked for 30 seconds.');
+    } else {
+      showLoginErr(!pwOk?'Incorrect password.':'Authenticator code is wrong or expired.');
+    }
+    $('loginPw').classList.add('error');
+    $('loginOtp').classList.add('error');
+    setTimeout(()=>{$('loginPw').classList.remove('error');$('loginOtp').classList.remove('error');},500);
+    return;
+  }
+  // SUCCESS
+  loginAttempts=0;
+  closeModal('modal2faLogin');
+  startSession();
+  if(pendingAction==='open'||!pendingAction){
+    openAdminPanel();
+  } else if(pendingAction.startsWith('edit:')){
+    const id=pendingAction.split(':')[1];
+    openAdminPanel(); performEditProduct(id);
+  } else if(pendingAction.startsWith('delete:')){
+    const id=pendingAction.split(':')[1];
+    performDeleteProduct(id);
+  }
+  pendingAction=null;
+  showToast('🔓 Admin access granted');
+}
+
+function showLoginErr(msg){
+  $('loginErr').textContent=msg;$('loginErr').classList.add('show');
+}
+
+function resetAdmin(){
+  if(!confirm('This will remove all admin credentials. You will need to set up 2FA again.\n\nContinue?')) return;
+  try{localStorage.removeItem('sf_pw_hash');localStorage.removeItem('sf_totp_secret');}catch(e){}
+  adminSession=null;
+  closeModal('modal2faLogin');
+  updateSessionUI();
+  $('setupPrompt').style.display='flex';
+  showToast('Admin credentials cleared');
+}
+
+/* ══════════════════════════════════════════
+   PRODUCTS / SHOP (2FA-protected CRUD)
+══════════════════════════════════════════ */
+function requireAuth(action, callback){
+  if(isSessionValid()){ callback(); return; }
+  if(!has2FA()){
+    $('setupPrompt').style.display='flex';
+    resetSetupModal(); pendingAction=action;
+    openModal('modal2faSetup'); return;
+  }
+  pendingAction=action;
+  $('loginErr').classList.remove('show');
+  $('loginPw').value=''; $('loginOtp').value='';
+  openModal('modal2faLogin');
+  startLoginTimer();
+  setTimeout(()=>$('loginPw').focus(),300);
+}
+
+function cancelEdit(){
+  clearAdminForm();
+  $('adminPanel').classList.remove('open');
+  $('adminToggleBtn').innerHTML='🔒 Admin Panel &nbsp;<span class="lock-badge">2FA Protected</span>';
+  if(isSessionValid()) $('adminToggleBtn').innerHTML='🔒 Admin Panel &nbsp;<span class="lock-badge unlocked">Session Active</span>';
+}
+
+function clearAdminForm(){
+  $('newName').value=''; $('newDesc').value=''; $('newPrice').value='';
+  $('newLink').value=''; $('newImg').value=''; $('editingId').value='';
+  $('adminTitle').textContent='Add New Product';
+}
+
+function saveProduct(){
+  const name=$('newName').value.trim();
+  if(!name){showToast('⚠ Product name required');return;}
+  const prod={
+    id: $('editingId').value || Date.now().toString(),
+    cat:   $('newCat').value,
+    name,
+    desc:  $('newDesc').value.trim(),
+    price: $('newPrice').value.trim(),
+    link:  $('newLink').value.trim(),
+    img:   $('newImg').value.trim(),
+  };
+  const idx=products.findIndex(p=>p.id===prod.id);
+  if(idx>=0) products[idx]=prod; else products.push(prod);
+  saveStorage(); renderProducts(); cancelEdit();
+  showToast(idx>=0?'✓ Product updated':'✓ Product added');
+}
+
+function editProduct(id){
+  requireAuth('edit:'+id, ()=>{ openAdminPanel(); performEditProduct(id); });
+}
+function performEditProduct(id){
+  const p=products.find(x=>x.id===id); if(!p) return;
+  $('newCat').value   =p.cat;
+  $('newName').value  =p.name;
+  $('newDesc').value  =p.desc||'';
+  $('newPrice').value =p.price||'';
+  $('newLink').value  =p.link||'';
+  $('newImg').value   =p.img||'';
+  $('editingId').value=p.id;
+  $('adminTitle').textContent='Edit Product';
+  $('appBody').scrollTop=0;
+}
+
+function deleteProduct(id){
+  requireAuth('delete:'+id, ()=>{ showDeleteConfirm(id); });
+}
+function showDeleteConfirm(id){
+  const p=products.find(x=>x.id===id);
+  $('delProductName').textContent=p?`Delete "${p.name}"? This cannot be undone.`:'Delete this product?';
+  $('confirmDelBtn').onclick=()=>{ performDeleteProduct(id); closeModal('modalConfirmDel'); };
+  openModal('modalConfirmDel');
+}
+function performDeleteProduct(id){
+  products=products.filter(p=>p.id!==id);
+  saveStorage(); renderProducts();
+  showToast('🗑 Product removed');
+}
+
+function setCategory(cat, el){
+  currentCat=cat;
+  document.querySelectorAll('.cat-pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  renderProducts();
+}
+function renderCategoryPills(){
+  const pills=$('catPills'); pills.innerHTML='';
+  const cats=['All',...new Set(products.map(p=>p.cat))];
+  cats.forEach(c=>{
+    const btn=document.createElement('button');
+    btn.className='cat-pill'+(c===currentCat?' active':'');
+    btn.textContent=(c==='All'?'🌐 All':(CAT_ICONS[c]||'📦')+' '+c);
+    btn.onclick=function(){ setCategory(c,this); };
+    pills.appendChild(btn);
+  });
+}
+function renderProducts(){
+  renderCategoryPills();
+  const grid=$('productsGrid');
+  const visible=currentCat==='All'?products:products.filter(p=>p.cat===currentCat);
+  if(!visible.length){
+    grid.innerHTML=`<div class="empty"><div class="empty-icon">🛒</div><div class="empty-text">${products.length?'No products in this category':'No Products Yet'}</div><div class="empty-sub">${products.length?'Select a different category':'Tap Admin Panel to add your affiliate links'}</div></div>`;
+    return;
+  }
+  grid.innerHTML=visible.map(p=>`
+    <div class="prod-card">
+      <div class="prod-img ${p.img?'':'no-img'}">${p.img?`<img src="${p.img}" alt="${p.name}" onerror="this.parentElement.innerHTML='${CAT_ICONS[p.cat]||'📦'}'">`:CAT_ICONS[p.cat]||'📦'}</div>
+      <div class="prod-info">
+        <div>
+          <span class="prod-cat-badge">${p.cat}</span>
+          <div class="prod-name">${p.name}</div>
+          ${p.desc?`<div class="prod-desc">${p.desc}</div>`:''}
+        </div>
+        <div class="prod-footer">
+          ${p.price?`<span class="prod-price">${p.price}</span>`:'<span></span>'}
+          <div class="prod-actions">
+            <button class="prod-edit-btn" onclick="editProduct('${p.id}')">✏️</button>
+            <button class="prod-del-btn"  onclick="deleteProduct('${p.id}')">🗑</button>
+            ${p.link?`<a class="prod-link" href="${p.link}" target="_blank" rel="noopener">Shop →</a>`:''}
+          </div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+/* ══════════════════════════════════════════
+   LANGUAGE SYSTEM — TRANSLATIONS
+══════════════════════════════════════════ */
+let currentLang = 'en';
+
+const T = {
+en: {
+  basics_title: 'Solar Basics',
+  basics_sub: 'Everything a beginner must know before building',
+  setup_head: '⚡ Solar Setup Types',
+  components_head: '🔩 Solar Components Explained',
+  checklist_head: '✅ Beginner\'s Build Checklist',
+
+  offgrid_title: 'Off-Grid System', offgrid_sub: 'No utility grid connection',
+  offgrid_body: 'An off-grid system is <strong>completely independent</strong> from the utility grid. Solar panels charge a battery bank via a charge controller. The inverter converts stored DC power to AC for your appliances. <strong>Battery sizing is critical</strong> — it must cover nights and cloudy days.',
+  offgrid_pro1:'Remote homes, farms, cabins, islands', offgrid_pro2:'Boats, RVs, motorhomes', offgrid_pro3:'No monthly electricity bill',
+  offgrid_con1:'Needs larger battery bank for autonomy', offgrid_con2:'No grid backup — cloudy weeks are a challenge',
+
+  ongrid_title: 'Grid-Tie (On-Grid) System', ongrid_sub: 'Connected to utility grid — net metering',
+  ongrid_body: 'Solar panels feed power directly into the grid through a <strong>grid-tie inverter</strong>. No battery needed. Excess solar production is exported back to the grid (<strong>net metering</strong>) — reducing your bill. System <strong>shuts down during blackouts</strong> for safety (anti-islanding).',
+  ongrid_pro1:'Reduce electricity bill significantly', ongrid_pro2:'Fastest payback period (3–7 years)', ongrid_pro3:'No battery cost',
+  ongrid_con1:'No power during grid outages', ongrid_con2:'Requires net metering policy from utility',
+
+  hybrid_title: 'Hybrid System', hybrid_sub: 'Solar + Battery + Grid backup',
+  hybrid_body: 'The <strong>best of both worlds</strong>. Solar charges batteries first. Excess exports to grid. When solar is low, battery kicks in. When battery is depleted, grid takes over seamlessly. Uses a <strong>hybrid inverter</strong>. Requires an <strong>ATS/MTS</strong> for grid switching.',
+  hybrid_pro1:'Power during blackouts from battery', hybrid_pro2:'Export excess solar to grid', hybrid_pro3:'Full energy independence over time',
+  hybrid_con1:'Higher upfront cost (battery + hybrid inverter)', hybrid_con2:'More complex wiring and configuration',
+
+  backup_title: 'Backup / UPS System', backup_sub: 'Battery backup with optional solar top-up',
+  backup_body: 'A backup system keeps <strong>critical appliances running during power cuts</strong>. The grid (or a charger) keeps the battery topped up. When grid fails, the battery + inverter take over instantly. Solar panels can be added to reduce grid charging dependency.',
+  backup_pro1:'Seamless switchover during blackouts', backup_pro2:'Protects computers, routers, medical equipment', backup_pro3:'Simpler than hybrid — just battery + inverter',
+  backup_con1:'Does not reduce electricity bill without solar', backup_con2:'Limited runtime depends on battery size',
+
+  scc_name:'Solar Charge Controller (SCC)', scc_sub:'Regulates solar charging to protect battery',
+  scc_body:'The SCC sits between your solar panels and battery. It <strong>prevents overcharging</strong>, manages the charging stages (bulk → absorption → float), and protects the battery from voltage spikes. Without an SCC, panels would destroy your battery in days.',
+  pwm_name:'PWM Controller', pwm_desc:'<strong>Pulse Width Modulation.</strong> Reduces voltage by rapidly switching the circuit on/off. Simple, cheap, and reliable. Panel voltage must closely match battery voltage — efficiency ~75%. Best for small systems under 200W where cost matters.',
+  mppt_name:'MPPT Controller', mppt_desc:'<strong>Maximum Power Point Tracking.</strong> Converts excess panel voltage into usable charging current. Efficiency ~93–98%. Can accept high-voltage panels (36V, 40V, 60V) into a 12V/24V/48V battery. Supports panel oversizing up to 130%.',
+  scc_tip:'<strong>🔑 Key Rule</strong><span>Always choose MPPT for systems above 400W or when using modern high-voltage panels. The efficiency gain pays for the cost difference.</span>',
+
+  inv_name:'Inverter', inv_sub:'Converts DC battery power to AC for appliances',
+  inv_body:'Batteries store power as <strong>DC (Direct Current)</strong>. Most appliances use <strong>AC (Alternating Current)</strong>. The inverter converts DC → AC. Choosing the wrong type can damage sensitive electronics or waste energy.',
+  psw_name:'Pure Sine Wave', psw_desc:'Produces clean AC power identical to grid power. Safe for <strong>all appliances</strong> including motors, compressors, medical devices, audio equipment, and sensitive electronics. Higher cost but essential for quality setups.',
+  msw_name:'Modified Sine Wave', msw_desc:'Produces a stepped/choppy AC waveform. Works for <strong>simple resistive loads</strong> (lights, heaters, basic tools). Can damage motors, compressors, variable-speed devices, and sensitive electronics. Not recommended for modern appliances.',
+  hinv_name:'Hybrid Inverter', hinv_desc:'An all-in-one inverter + charger + SCC. Manages solar, battery, and grid simultaneously. Switches seamlessly between sources. Used in hybrid and grid-tie systems.',
+  ginv_name:'Grid-Tie Inverter', ginv_desc:'Synchronizes solar output with grid frequency and voltage. No battery required. Has <strong>anti-islanding</strong> protection — shuts off during grid blackouts for safety. Cannot power loads without the grid.',
+  inv_warn:'<strong>⚠ Surge Power Matters</strong><span>Motors and compressors draw 2–6× their rated watts at startup. Always check surge wattage and ensure your inverter and BMS can handle it.</span>',
+
+  bat_name:'Batteries', bat_sub:'Energy storage — the heart of your system',
+  bat_body:'The battery stores energy from your solar panels for use when the sun isn\'t shining. Battery selection affects <strong>cost, lifespan, safety, weight, and usable capacity</strong>.',
+  lfe_name:'LiFePO₄', lfe_desc:'<strong>Lithium Iron Phosphate.</strong> The safest lithium chemistry. DoD: 90%. Cycle life: 3,000–6,000+ cycles. Lightweight, no maintenance. Does not suffer thermal runaway. Requires a BMS.',
+  nmc_name:'Lithium NMC', nmc_desc:'<strong>Lithium Nickel Manganese Cobalt.</strong> Higher energy density than LiFePO₄. DoD: 80%. Cycle life: 1,500–3,000. Used in EVs and power walls. Slightly less thermally stable. Needs BMS.',
+  agm_name:'AGM Battery', agm_desc:'<strong>Absorbed Glass Mat.</strong> Sealed lead-acid — no watering needed. DoD: 50%. Cycle life: 400–700. Maintenance-free, spill-proof. Must not be discharged below 50% regularly.',
+  gel_name:'Gel Battery', gel_desc:'<strong>Gel-cell lead-acid.</strong> Silica gel electrolyte — vibration-resistant and spillproof. DoD: 50%. Cycle life: 500–900. Sensitive to overcharging — use gel-compatible charger settings.',
+  fla_name:'Flooded Lead-Acid', fla_desc:'<strong>Traditional wet-cell battery.</strong> DoD: 50%. Cycle life: 300–500. Cheapest option. Requires monthly water top-up and good ventilation (produces hydrogen gas).',
+  bat_warn:'<strong>⚠ LVD Required for Lead-Acid</strong><span>Always install a Low Voltage Disconnect (LVD) with lead-acid batteries. Deep discharge permanently damages them.</span>',
+
+  panel_name:'Solar Panels', panel_sub:'Convert sunlight into DC electricity',
+  panel_body:'Solar panels (photovoltaic/PV) convert sunlight into DC electricity. Panel output is measured in <strong>Watts (peak) under Standard Test Conditions (STC)</strong>: 1000 W/m² irradiance, 25°C cell temperature.',
+  mono_name:'Monocrystalline', mono_desc:'Made from single-crystal silicon. Efficiency: <strong>20–23%</strong>. Black appearance. Best performance in low light and high temperatures. Most compact.',
+  poly_name:'Polycrystalline', poly_desc:'Made from multiple silicon crystals. Blue speckled appearance. Efficiency: <strong>15–18%</strong>. Cheaper to manufacture. Slightly larger for the same wattage.',
+  thin_name:'Thin-Film (CIGS/CdTe)', thin_desc:'Deposited on glass, plastic, or metal. Efficiency: <strong>10–14%</strong>. Flexible and lightweight. Better in heat and diffuse light. Ideal for curved surfaces and portable setups.',
+  bifacial_name:'Bifacial Panels', bifacial_desc:'Generates power from <strong>both front and rear surfaces</strong>. Rear picks up reflected light. Can yield 10–30% more energy. Ideal for elevated ground-mount installations.',
+  panel_tip:'<strong>💡 Tip: Temperature Coefficient</strong><span>Panels lose ~0.3–0.5% output per °C above 25°C. In hot climates, real-world output can be 10–20% below rated watts.</span>',
+
+  wire_name:'Wires & Cables', wire_sub:'Proper sizing prevents fires and power loss',
+  wire_body:'DC solar systems carry <strong>high currents at low voltages</strong>. Undersized wires overheat, cause voltage drop, and can start fires. Always use <strong>stranded copper wire</strong> rated for the application.',
+  pv_wire_name:'Solar PV Cable', pv_wire_desc:'<strong>USE-2 or PV Wire.</strong> UV-resistant, double-insulated, rated for outdoor exposure. Required for rooftop and outdoor runs.',
+  thhn_name:'THHN / THWN', thhn_desc:'Thermoplastic insulated wire for indoor conduit runs. Good for SCC-to-battery and battery-to-inverter connections inside an enclosure.',
+  flex_name:'Welding / Flexible Cable', flex_desc:'Highly flexible, fine-stranded copper. Excellent for high-current runs (battery→inverter) where some flex is needed.',
+  mc4_name:'MC4 Connector Cable', mc4_desc:'Pre-terminated solar cable with MC4 connectors. Weatherproof IP67 rated. <strong>Always use proper MC4 crimping tool — never tape or twist solar connections.</strong>',
+  wire_danger:'<strong>🔥 Fire Safety Rule</strong><span>Undersized or loose DC connections are the #1 cause of solar fires. DC arcs don\'t self-extinguish like AC arcs.</span>',
+
+  brk_name:'DC Breakers & Fuses', brk_sub:'Protect wires, components and people',
+  brk_body:'DC breakers and fuses protect against short circuits and overloads. <strong>DC is more dangerous than AC</strong> — arcs sustain longer and don\'t self-extinguish. Always use <strong>DC-rated breakers</strong>.',
+  dcbrk_name:'DC Circuit Breaker (MCB)', dcbrk_desc:'Resettable protection device. 6A to 200A+. Must be DC-rated for your system voltage. Allows manual isolation for maintenance.',
+  anl_name:'Blade / ANL Fuse', anl_desc:'One-time protection for high-current runs (battery→inverter). ANL fuses handle 100–500A. Place as close to the battery positive terminal as possible.',
+  busbar_name:'Busbar Fuse Block', busbar_desc:'Distributes power to multiple circuits each with their own fuse. Keeps the installation neat and organized.',
+  brk_danger:'<strong>⚡ Critical Rule</strong><span>Install a fuse or breaker within 18 inches of every positive battery terminal connection. A short here causes catastrophic damage or fire.</span>',
+
+  spd_name:'SPD — Surge Protection Device', spd_sub:'Protection from lightning and voltage spikes',
+  spd_body:'Voltage surges from lightning strikes or grid transients can instantly destroy your SCC, inverter, and battery. An SPD <strong>clamps overvoltage spikes</strong> and diverts surge energy to ground before it reaches your equipment.',
+  t1_name:'Type 1 SPD', t1_desc:'Installed at the main service entrance. Handles direct lightning strike energy. Required for buildings with direct lightning protection. Discharge capacity ≥ 25kA.',
+  t2_name:'Type 2 SPD', t2_desc:'Most common for solar installations. Installed at the distribution board. Handles induced surges. Discharge capacity ≥ 10kA. <strong>Minimum requirement for every solar system.</strong>',
+  t12_name:'Type 1+2 Combined', t12_desc:'Combines Type 1 and Type 2 in a single unit. Best protection for solar arrays, especially in areas with frequent thunderstorms.',
+  spd_tip:'<strong>⚡ Grounding is Essential</strong><span>SPDs only work if properly grounded. Bond all metal frames, racking, and enclosures to a proper earth ground.</span>',
+
+  cl1:'Calculate daily load (Wh/day)', cl2:'Size battery (Wh + autonomy days)', cl3:'Size solar panels (Wh ÷ PSH)',
+  cl4:'Choose MPPT SCC (current × 1.25)', cl5:'Pick pure sine wave inverter', cl6:'Size BMS ≥ inverter current × 1.25',
+  cl7:'Size all wires (design current)', cl8:'Add DC breakers on every circuit', cl9:'Install SPD (DC + AC)', cl10:'Ground all metal components',
+  cl_tip:'<strong>🎯 Ready to Design?</strong><span>Head to the System tab, fill in your components, add your loads, then tap Calculate to get your full design analysis.</span>',
+},
+
+tl: {
+  basics_title: 'Mga Pangunahing Kaalaman sa Solar',
+  basics_sub: 'Lahat ng dapat malaman ng isang baguhan bago mag-install',
+  setup_head: '⚡ Mga Uri ng Solar Setup',
+  components_head: '🔩 Mga Solar na Bahagi — Paliwanag',
+  checklist_head: '✅ Checklist para sa mga Baguhan',
+
+  offgrid_title: 'Off-Grid System', offgrid_sub: 'Walang koneksyon sa utility grid',
+  offgrid_body: 'Ang off-grid system ay <strong>ganap na malaya</strong> mula sa utility grid. Ang mga solar panel ay nag-i-charge ng baterya sa pamamagitan ng charge controller. Ang inverter ay nag-ko-convert ng nakaimbak na DC power patungong AC para sa iyong mga appliance. <strong>Mahalaga ang tamang laki ng baterya</strong> — kailangan itong sumapat sa gabi at maulap na mga araw.',
+  offgrid_pro1:'Mga malalayong bahay, bukid, kubo, isla', offgrid_pro2:'Barko, RV, motorhome', offgrid_pro3:'Walang buwanang bayad sa kuryente',
+  offgrid_con1:'Kailangan ng mas malaking baterya para sa awtonomiya', offgrid_con2:'Walang backup mula sa grid — mahirap kapag matagal na maulap',
+
+  ongrid_title: 'Grid-Tie (On-Grid) System', ongrid_sub: 'Nakakonekta sa utility grid — net metering',
+  ongrid_body: 'Ang mga solar panel ay direktang nagpadala ng kuryente sa grid sa pamamagitan ng isang <strong>grid-tie inverter</strong>. Hindi kailangan ng baterya. Ang sobrang solar production ay naibabalik sa grid (<strong>net metering</strong>) — nagpapababa ng bayarin. <strong>Nagsasara ang sistema sa panahon ng blackout</strong> para sa kaligtasan (anti-islanding).',
+  ongrid_pro1:'Malaking bawas sa bayad sa kuryente', ongrid_pro2:'Pinakamabilis na panahon ng pagbabalik ng puhunan (3–7 taon)', ongrid_pro3:'Walang gastos sa baterya',
+  ongrid_con1:'Walang kuryente sa panahon ng brownout', ongrid_con2:'Kailangan ng net metering na patakaran mula sa utility',
+
+  hybrid_title: 'Hybrid System', hybrid_sub: 'Solar + Baterya + Grid backup',
+  hybrid_body: '<strong>Pinakamahusay na kombinasyon.</strong> Inuna ng solar ang pag-charge ng baterya. Ang sobrang kuryente ay inilalabas sa grid. Kapag mababa ang solar, gumagana ang baterya. Kapag ubos na ang baterya, ang grid ang sumasali. Gumagamit ng <strong>hybrid inverter</strong>. Kailangan ng <strong>ATS/MTS</strong> para sa grid switching.',
+  hybrid_pro1:'May kuryente kahit sa brownout mula sa baterya', hybrid_pro2:'Maari mag-export ng sobrang solar sa grid', hybrid_pro3:'Ganap na kalayaan sa kuryente sa paglipas ng panahon',
+  hybrid_con1:'Mas mataas na paunang gastos (baterya + hybrid inverter)', hybrid_con2:'Mas kumplikadong wiring at configuration',
+
+  backup_title: 'Backup / UPS System', backup_sub: 'Pang-backup na baterya na may opsyonal na solar',
+  backup_body: 'Ang backup system ay nagpapanatiling <strong>gumagana ang mahahalagang appliance sa panahon ng brownout</strong>. Ang grid (o charger) ay nagpapanatiling puno ng baterya. Kapag nawala ang grid, agad na nag-ooperate ang baterya + inverter. Maaaring magdagdag ng solar panel para mabawasan ang pag-depende sa grid.',
+  backup_pro1:'Maayos na paglipat sa panahon ng brownout', backup_pro2:'Pinoprotektahan ang computer, router, medikal na kagamitan', backup_pro3:'Mas simple kaysa hybrid — baterya at inverter lamang',
+  backup_con1:'Hindi nagbabawas ng bayad sa kuryente kung walang solar', backup_con2:'Limitadong oras ng takbo depende sa baterya',
+
+  scc_name:'Solar Charge Controller (SCC)', scc_sub:'Inireregula ang pag-charge mula sa solar para protektahan ang baterya',
+  scc_body:'Ang SCC ay nasa pagitan ng iyong mga solar panel at baterya. <strong>Pinipigilan nito ang sobrang pag-charge</strong>, pinapamahalaan ang mga yugto ng pag-charge (bulk → absorption → float), at pinoprotektahan ang baterya mula sa voltage spikes. Kung walang SCC, masisira ang iyong baterya sa loob ng ilang araw.',
+  pwm_name:'PWM Controller', pwm_desc:'<strong>Pulse Width Modulation.</strong> Binabawasan ang boltahe sa pamamagitan ng mabilis na on/off switching. Simple, mura, at maaasahan. Ang boltahe ng panel ay dapat malapit sa boltahe ng baterya — kahusayan ~75%. Pinakamainam para sa maliliit na sistema (wala pang 200W).',
+  mppt_name:'MPPT Controller', mppt_desc:'<strong>Maximum Power Point Tracking.</strong> Kino-convert ang sobrang boltahe ng panel sa kapaki-pakinabang na charging current. Kahusayan ~93–98%. Tinatanggap ang mataas na boltahe ng panel (36V, 40V, 60V) para sa 12V/24V/48V na baterya. Sinusuportahan ang panel oversizing hanggang 130%.',
+  scc_tip:'<strong>🔑 Pangunahing Alituntunin</strong><span>Palaging pumili ng MPPT para sa mga sistema na higit sa 400W o kapag gumagamit ng modernong mataas-boltahe na panel. Ang pagtipid sa kahusayan ay nagbabayad sa mas mataas na presyo ng MPPT.</span>',
+
+  inv_name:'Inverter', inv_sub:'Kino-convert ang DC mula sa baterya patungong AC para sa mga appliance',
+  inv_body:'Ang mga baterya ay nag-iimbak ng kuryente bilang <strong>DC (Direct Current)</strong>. Karamihan sa mga appliance ay gumagamit ng <strong>AC (Alternating Current)</strong>. Ang inverter ay nagko-convert ng DC → AC. Ang maling uri ng inverter ay maaaring sirain ang iyong mga kagamitan.',
+  psw_name:'Pure Sine Wave', psw_desc:'Nagpo-produce ng malinis na AC power katulad ng grid power. Ligtas para sa <strong>lahat ng appliance</strong> kabilang ang mga motor, compressor, medikal na kagamitan, at sensitibong electronics. Mas mahal ngunit kinakailangan para sa kalidad na setup.',
+  msw_name:'Modified Sine Wave', msw_desc:'Nagpo-produce ng stepped/choppy na AC waveform. Gumagana para sa <strong>simpleng resistive load</strong> (ilaw, heater, simpleng kasangkapan). Maaaring makapinsala sa mga motor, compressor, at sensitibong elektronika. Hindi inirerekomenda para sa modernong appliance.',
+  hinv_name:'Hybrid Inverter', hinv_desc:'All-in-one na inverter + charger + SCC. Pinamamahalaan ang solar, baterya, at grid nang sabay-sabay. Maayos na lumilipat sa pagitan ng mga pinagkukunan ng kuryente.',
+  ginv_name:'Grid-Tie Inverter', ginv_desc:'Niso-synchronize ang output ng solar sa frequency at boltahe ng grid. Hindi kailangan ng baterya. May <strong>anti-islanding</strong> na proteksyon — awtomatikong nagsasara sa panahon ng blackout para sa kaligtasan.',
+  inv_warn:'<strong>⚠ Mahalaga ang Surge Power</strong><span>Ang mga motor at compressor ay kumukuha ng 2–6× ng kanilang rated watts sa pagstart. Palaging tingnan ang surge wattage ng iyong mga load at tiyaking kaya ito ng iyong inverter at BMS.</span>',
+
+  bat_name:'Baterya', bat_sub:'Imbakan ng enerhiya — puso ng iyong sistema',
+  bat_body:'Nag-iimbak ang baterya ng enerhiya mula sa iyong mga solar panel para gamitin kapag wala nang araw. Ang pagpili ng baterya ay nakaka-apekto sa <strong>gastos, habang-buhay, kaligtasan, timbang, at magagamit na kapasidad</strong>.',
+  lfe_name:'LiFePO₄', lfe_desc:'<strong>Lithium Iron Phosphate.</strong> Pinaka-ligtas na lithium chemistry. DoD: 90%. Cycle life: 3,000–6,000+ cycles. Magaan, walang maintenance. Hindi nagkaroon ng thermal runaway. Kailangan ng BMS.',
+  nmc_name:'Lithium NMC', nmc_desc:'<strong>Lithium Nickel Manganese Cobalt.</strong> Mas mataas na energy density kaysa LiFePO₄. DoD: 80%. Cycle life: 1,500–3,000. Ginagamit sa mga EV at power wall. Kailangan ng BMS.',
+  agm_name:'AGM Battery', agm_desc:'<strong>Absorbed Glass Mat.</strong> Sealed lead-acid — hindi kailangan ng pagdagdag ng tubig. DoD: 50%. Cycle life: 400–700. Walang maintenance, hindi natatapon. Huwag i-discharge nang mas mababa sa 50% nang regular.',
+  gel_name:'Gel Battery', gel_desc:'<strong>Gel-cell lead-acid.</strong> Silica gel electrolyte — matibay sa vibration at hindi natatapon. DoD: 50%. Cycle life: 500–900. Sensitibo sa sobrang pag-charge — gumamit ng gel-compatible na charger settings.',
+  fla_name:'Flooded Lead-Acid', fla_desc:'<strong>Tradisyonal na wet-cell battery.</strong> DoD: 50%. Cycle life: 300–500. Pinaka-murang opsyon. Kailangan ng buwanang pagdagdag ng tubig at maayos na bentilasyon (naglalabas ng hydrogen gas).',
+  bat_warn:'<strong>⚠ Kailangan ng LVD para sa Lead-Acid</strong><span>Palaging mag-install ng Low Voltage Disconnect (LVD) sa mga lead-acid battery. Ang malalim na pag-discharge ay permanenteng sinasamang baterya.</span>',
+
+  panel_name:'Mga Solar Panel', panel_sub:'Kino-convert ang sikat ng araw patungong DC electricity',
+  panel_body:'Ang mga solar panel (photovoltaic/PV) ay nagko-convert ng sikat ng araw patungong DC electricity. Ang output ng panel ay sinusukat sa <strong>Watts (peak) sa ilalim ng Standard Test Conditions (STC)</strong>: 1000 W/m² irradiance, 25°C temperatura ng cell.',
+  mono_name:'Monocrystalline', mono_desc:'Gawa mula sa isang kristal na silicon. Kahusayan: <strong>20–23%</strong>. Itim na hitsura. Pinakamahusay sa mababang liwanag at mataas na temperatura. Pinaka-compact.',
+  poly_name:'Polycrystalline', poly_desc:'Gawa mula sa maraming kristal na silicon. Asul na may kulay-abo na hitsura. Kahusayan: <strong>15–18%</strong>. Mas mura sa paggawa. Medyo mas malaki para sa parehong wattage.',
+  thin_name:'Thin-Film (CIGS/CdTe)', thin_desc:'Naka-deposito sa salamin, plastik, o metal. Kahusayan: <strong>10–14%</strong>. Flexible at magaan. Mas mahusay sa init at diffuse na liwanag. Ideal para sa mga nakahubog na ibabaw.',
+  bifacial_name:'Bifacial Panel', bifacial_desc:'Nagge-generate ng kuryente mula sa <strong>parehong harap at likod na ibabaw</strong>. Ang likod ay kumukuha ng reflected na liwanag. Maaaring magbigay ng 10–30% na mas maraming enerhiya.',
+  panel_tip:'<strong>💡 Tip: Temperature Coefficient</strong><span>Ang mga panel ay nawawalan ng ~0.3–0.5% ng output para sa bawat °C na higit sa 25°C. Sa mainit na lugar, ang totoong output ay maaaring 10–20% na mas mababa kaysa sa rated watts.</span>',
+
+  wire_name:'Mga Wire at Cable', wire_sub:'Ang tamang laki ay nagpipigil ng sunog at pagkawala ng kuryente',
+  wire_body:'Ang mga DC solar system ay nagdadala ng <strong>mataas na agarang kuryente sa mababang boltahe</strong>. Ang maliliit na wire ay nag-o-overheat, nagdudulot ng voltage drop, at maaaring mag-apoy. Palaging gumamit ng <strong>stranded copper wire</strong> na angkop para sa aplikasyon.',
+  pv_wire_name:'Solar PV Cable', pv_wire_desc:'<strong>USE-2 o PV Wire.</strong> UV-resistant, double-insulated, para sa outdoor na paggamit. Kailangan para sa mga rooftop at outdoor na koneksyon.',
+  thhn_name:'THHN / THWN', thhn_desc:'Thermoplastic insulated wire para sa indoor conduit runs. Mainam para sa SCC-to-battery at battery-to-inverter na koneksyon sa loob ng enclosure.',
+  flex_name:'Welding / Flexible Cable', flex_desc:'Napaka-flexible, fine-stranded copper. Mahusay para sa mataas na agarang kuryente (battery→inverter) kung saan kailangan ng kaunting flexibility.',
+  mc4_name:'MC4 Connector Cable', mc4_desc:'Pre-terminated solar cable na may MC4 connectors. Weatherproof IP67 rated. <strong>Palaging gumamit ng tamang MC4 crimping tool — huwag mag-tape o mag-twist ng mga solar connection.</strong>',
+  wire_danger:'<strong>🔥 Alituntunin sa Kaligtasan mula sa Sunog</strong><span>Ang maliliit o maluwag na DC connections ang pangunahing dahilan ng solar fires. Ang mga DC arc ay hindi natural na namamatay tulad ng AC arc.</span>',
+
+  brk_name:'Mga DC Breaker at Fuse', brk_sub:'Pinoprotektahan ang wire, mga bahagi at tao',
+  brk_body:'Ang mga DC breaker at fuse ay nagpoprotekta laban sa short circuit at overload. <strong>Ang DC ay mas mapanganib kaysa AC</strong> — ang mga arc ay mas matagal at hindi natural na namamatay. Palaging gumamit ng <strong>DC-rated breaker</strong>.',
+  dcbrk_name:'DC Circuit Breaker (MCB)', dcbrk_desc:'Resettable na protection device. Mula 6A hanggang 200A+. Kailangan ng DC rating para sa iyong system voltage. Nagbibigay-daan sa manual isolation para sa maintenance.',
+  anl_name:'Blade / ANL Fuse', anl_desc:'One-time na proteksyon para sa mataas na agarang kuryente (battery→inverter). Ang ANL fuses ay kaya ang 100–500A. Ilagay nang malapit sa battery positive terminal.',
+  busbar_name:'Busbar Fuse Block', busbar_desc:'Nagdistribute ng kuryente sa maraming circuit na bawat isa ay may sariling fuse. Nagpapanatiling maayos at organisado ang installation.',
+  brk_danger:'<strong>⚡ Kritikal na Alituntunin</strong><span>Mag-install ng fuse o breaker sa loob ng 18 pulgada ng bawat koneksyon sa positive terminal ng baterya. Ang maikling circuit dito ay maaaring magdulot ng malubhang pinsala o sunog.</span>',
+
+  spd_name:'SPD — Surge Protection Device', spd_sub:'Proteksyon mula sa kidlat at voltage spikes',
+  spd_body:'Ang mga voltage surge mula sa kidlat o grid transients ay kayang sirain agad ang iyong SCC, inverter, at baterya. Ang SPD ay <strong>nag-cla-clamp ng sobrang boltahe</strong> at naglilipat ng surge energy sa lupa bago ito maabot ang iyong kagamitan.',
+  t1_name:'Type 1 SPD', t1_desc:'Inilalagay sa pangunahing service entrance. Hinahawakan ang direktang kidlat. Kailangan para sa mga gusali na may direktang lightning protection. Discharge capacity ≥ 25kA.',
+  t2_name:'Type 2 SPD', t2_desc:'Pinaka-karaniwan para sa mga solar installation. Inilalagay sa distribution board. Hinahawakan ang mga induced surge. Discharge capacity ≥ 10kA. <strong>Minimum na requirement para sa bawat solar system.</strong>',
+  t12_name:'Type 1+2 Combined', t12_desc:'Pinagsama ang Type 1 at Type 2 sa isang unit. Pinakamahusay na proteksyon para sa mga solar array, lalo na sa mga lugar na madalas mag-kidlat.',
+  spd_tip:'<strong>⚡ Mahalaga ang Grounding</strong><span>Ang mga SPD ay gumagana lamang kung may tamang grounding. I-bond ang lahat ng metal frame, racking, at enclosure sa tamang earth ground.</span>',
+
+  cl1:'Kalkulahin ang araw-araw na load (Wh/day)', cl2:'Sukatin ang baterya (Wh + araw ng awtonomiya)', cl3:'Sukatin ang solar panel (Wh ÷ PSH)',
+  cl4:'Pumili ng MPPT SCC (agarang kuryente × 1.25)', cl5:'Pumili ng pure sine wave inverter', cl6:'Sukatin ang BMS ≥ inverter current × 1.25',
+  cl7:'Sukatin ang lahat ng wire (design current)', cl8:'Magdagdag ng DC breaker sa bawat circuit', cl9:'Mag-install ng SPD (DC + AC)', cl10:'I-ground ang lahat ng metal na bahagi',
+  cl_tip:'<strong>🎯 Handa na Mag-Disenyo?</strong><span>Pumunta sa System tab, punan ang iyong mga bahagi, idagdag ang iyong mga load, at pindutin ang Calculate para makuha ang iyong kumpletong pagsusuri ng disenyo.</span>',
+}
+};
+
+/* ── render basics ── */
+function setLang(lang, btn) {
+  currentLang = lang;
+  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderBasics();
+}
+
+function acc(id, iconBg, icon, name, sub, bodyHtml) {
+  return `<div class="basics-acc" id="acc-${id}">
+    <div class="basics-acc-head" onclick="toggleAcc('${id}')">
+      <div class="basics-icon-wrap" style="background:${iconBg}">${icon}</div>
+      <div class="basics-acc-title">
+        <div class="basics-acc-name">${name}</div>
+        <div class="basics-acc-sub">${sub}</div>
+      </div>
+      <span class="basics-chevron">▾</span>
+    </div>
+    <div class="basics-body"><div class="basics-body-inner">${bodyHtml}</div></div>
+  </div>`;
+}
+
+function typeCard(dot, name, tag, tagCls, desc, procon='') {
+  return `<div class="type-card">
+    <div class="type-card-head"><div class="type-dot" style="background:${dot}"></div>
+      <span class="type-name">${name}</span>
+      <span class="type-tag ${tagCls}">${tag}</span></div>
+    <div class="type-desc">${desc}</div>${procon}
+  </div>`;
+}
+function procon(pros, cons) {
+  return `<div class="pro-con">
+    <div class="pro-box"><div class="pro-con-head">Pros</div>${pros.map(p=>`<div class="pro-con-item">${p}</div>`).join('')}</div>
+    <div class="con-box"><div class="pro-con-head">Cons</div>${cons.map(c=>`<div class="pro-con-item">${c}</div>`).join('')}</div>
+  </div>`;
+}
+function flowDiag(nodes) {
+  return `<div class="flow-diagram">${nodes.map((n,i)=>
+    i<nodes.length-1
+      ? `<span class="flow-node ${n[0]}">${n[1]}</span><span class="flow-arrow">→</span>`
+      : `<span class="flow-node ${n[0]}">${n[1]}</span>`
+  ).join('')}</div>`;
+}
+function setupCard(cls, icon, title, sub, flow, body, pros, cons) {
+  return `<div class="setup-explain-card ${cls}">
+    <div class="sec-head"><span class="sec-icon">${icon}</span>
+      <div><div class="sec-title">${title}</div><div class="sec-sub">${sub}</div></div>
+    </div>
+    ${flow}
+    <div class="sec-body">${body}
+      <ul class="use-list" style="margin-top:8px">
+        ${pros.map(p=>`<li>${p}</li>`).join('')}
+        ${cons.map(c=>`<li class="no">${c}</li>`).join('')}
+      </ul>
+    </div>
+  </div>`;
+}
+
+function renderBasics() {
+  const t = T[currentLang];
+  let h = '';
+
+  // Hero
+  h += `<div style="background:linear-gradient(135deg,rgba(16,185,129,0.12),rgba(245,158,11,0.06));border:1px solid rgba(16,185,129,0.3);border-radius:var(--r);padding:16px;margin-bottom:14px;display:flex;align-items:center;gap:12px">
+    <span style="font-size:36px;flex-shrink:0">🌞</span>
+    <div><div style="font-size:18px;font-weight:900;color:var(--green)">${t.basics_title}</div>
+    <div style="font-size:13px;color:var(--muted2);margin-top:2px">${t.basics_sub}</div></div>
+  </div>`;
+
+  // Setup types
+  h += `<div class="s-divider">${t.setup_head}</div>`;
+  h += setupCard('sec-offgrid','🏕️',t.offgrid_title,t.offgrid_sub,
+    flowDiag([['fn-solar','Solar Panel'],['fn-brk','DC Breaker'],['fn-scc','SCC'],['fn-bat','Battery'],['fn-inv','Inverter'],['fn-load','Loads']]),
+    t.offgrid_body,[t.offgrid_pro1,t.offgrid_pro2,t.offgrid_pro3],[t.offgrid_con1,t.offgrid_con2]);
+  h += setupCard('sec-ongrid','🏭',t.ongrid_title,t.ongrid_sub,
+    flowDiag([['fn-solar','Solar Panel'],['fn-scc','Grid-Tie Inv'],['fn-grid','Grid/Meter'],['fn-load','Loads']]),
+    t.ongrid_body,[t.ongrid_pro1,t.ongrid_pro2,t.ongrid_pro3],[t.ongrid_con1,t.ongrid_con2]);
+  h += setupCard('sec-hybrid','⚡',t.hybrid_title,t.hybrid_sub,
+    flowDiag([['fn-solar','Solar'],['fn-scc','Hybrid Inv'],['fn-bat','Battery'],['fn-ats','ATS'],['fn-grid','Grid'],['fn-load','Loads']]),
+    t.hybrid_body,[t.hybrid_pro1,t.hybrid_pro2,t.hybrid_pro3],[t.hybrid_con1,t.hybrid_con2]);
+  h += setupCard('sec-backup','🔋',t.backup_title,t.backup_sub,
+    flowDiag([['fn-grid','Grid'],['fn-ats','Charger'],['fn-bat','Battery'],['fn-inv','Inverter'],['fn-load','Critical Loads']]),
+    t.backup_body,[t.backup_pro1,t.backup_pro2,t.backup_pro3],[t.backup_con1,t.backup_con2]);
+
+  // Components
+  h += `<div class="s-divider">${t.components_head}</div>`;
+
+  // SCC
+  h += acc('scc','rgba(59,130,246,0.15)','⚡',t.scc_name,t.scc_sub,
+    `<div style="font-size:14px;color:var(--muted2);line-height:1.6;margin-bottom:12px">${t.scc_body}</div>
+    <div class="type-grid">
+      ${typeCard('var(--amber)',t.pwm_name,'Budget','tag-budget',t.pwm_desc,procon(['Low cost','Simple, reliable','Small systems'],['~75% efficient','Panel V must match battery','No high-V panels']))}
+      ${typeCard('var(--green)',t.mppt_name,'Recommended','tag-best',t.mppt_desc,procon(['93–98% efficient','High-V panels work','130% panel oversizing'],['Higher cost','Overkill for tiny systems']))}
+    </div>
+    <div class="callout tip">${t.scc_tip}</div>`);
+
+  // Inverter
+  h += acc('inv','rgba(234,88,12,0.15)','🔌',t.inv_name,t.inv_sub,
+    `<div style="font-size:14px;color:var(--muted2);line-height:1.6;margin-bottom:12px">${t.inv_body}</div>
+    <div class="type-grid">
+      ${typeCard('var(--green)',t.psw_name,'Best Choice','tag-best',t.psw_desc)}
+      ${typeCard('var(--orange)',t.msw_name,'Budget','tag-budget',t.msw_desc)}
+      ${typeCard('var(--purple)',t.hinv_name,'Pro Setup','tag-best',t.hinv_desc)}
+      ${typeCard('var(--teal)',t.ginv_name,'On-Grid','tag-good',t.ginv_desc)}
+    </div>
+    <div class="callout warn">${t.inv_warn}</div>`);
+
+  // Battery
+  h += acc('bat','rgba(16,185,129,0.15)','🔋',t.bat_name,t.bat_sub,
+    `<div style="font-size:14px;color:var(--muted2);line-height:1.6;margin-bottom:12px">${t.bat_body}</div>
+    <div class="type-grid">
+      ${typeCard('var(--green)',t.lfe_name,'Best Choice','tag-best',t.lfe_desc,procon(['Safe, stable','90% usable','Long life'],['High upfront cost','Needs BMS']))}
+      ${typeCard('var(--amber)',t.nmc_name,'Good','tag-good',t.nmc_desc)}
+      ${typeCard('var(--blue)',t.agm_name,'Lead-Acid','tag-budget',t.agm_desc,procon(['Affordable','No maintenance'],['Only 50% usable','Short cycle life']))}
+      ${typeCard('var(--teal)',t.gel_name,'Lead-Acid','tag-budget',t.gel_desc)}
+      ${typeCard('var(--muted2)',t.fla_name,'Entry Level','tag-budget',t.fla_desc)}
+    </div>
+    <div class="callout warn">${t.bat_warn}</div>`);
+
+  // Panels
+  h += acc('panel','rgba(245,158,11,0.15)','☀️',t.panel_name,t.panel_sub,
+    `<div style="font-size:14px;color:var(--muted2);line-height:1.6;margin-bottom:12px">${t.panel_body}</div>
+    <div class="type-grid">
+      ${typeCard('var(--green)',t.mono_name,'Most Efficient','tag-best',t.mono_desc)}
+      ${typeCard('var(--blue)',t.poly_name,'Budget','tag-budget',t.poly_desc)}
+      ${typeCard('var(--purple)',t.thin_name,'Flexible','tag-good',t.thin_desc)}
+      ${typeCard('var(--amber)',t.bifacial_name,'Premium','tag-best',t.bifacial_desc)}
+    </div>
+    <div class="callout tip">${t.panel_tip}</div>`);
+
+  // Wires
+  h += acc('wire','rgba(6,182,212,0.15)','🔧',t.wire_name,t.wire_sub,
+    `<div style="font-size:14px;color:var(--muted2);line-height:1.6;margin-bottom:12px">${t.wire_body}</div>
+    <div class="type-grid">
+      ${typeCard('var(--orange)',t.pv_wire_name,'Outdoor','tag-best',t.pv_wire_desc)}
+      ${typeCard('var(--green)',t.thhn_name,'Indoor','tag-good',t.thhn_desc)}
+      ${typeCard('var(--blue)',t.flex_name,'High Current','tag-good',t.flex_desc)}
+      ${typeCard('var(--amber)',t.mc4_name,'Panel','tag-best',t.mc4_desc)}
+    </div>
+    <div class="callout danger">${t.wire_danger}</div>`);
+
+  // DC Breakers
+  h += acc('brk','rgba(239,68,68,0.15)','🔴',t.brk_name,t.brk_sub,
+    `<div style="font-size:14px;color:var(--muted2);line-height:1.6;margin-bottom:12px">${t.brk_body}</div>
+    <div class="type-grid">
+      ${typeCard('var(--red)',t.dcbrk_name,'Standard','tag-best',t.dcbrk_desc)}
+      ${typeCard('var(--amber)',t.anl_name,'High Current','tag-good',t.anl_desc)}
+      ${typeCard('var(--blue)',t.busbar_name,'Multi-circuit','tag-good',t.busbar_desc)}
+    </div>
+    <div style="margin-top:10px">
+      ${flowDiag([['fn-solar','Panels'],['fn-brk','DC Brk'],['fn-spd','SPD'],['fn-scc','SCC'],['fn-brk','DC Brk'],['fn-bat','Battery'],['fn-brk','ANL Fuse'],['fn-inv','Inverter']])}
+    </div>
+    <div class="callout danger" style="margin-top:10px">${t.brk_danger}</div>`);
+
+  // SPD
+  h += acc('spd','rgba(245,158,11,0.15)','⚡',t.spd_name,t.spd_sub,
+    `<div style="font-size:14px;color:var(--muted2);line-height:1.6;margin-bottom:12px">${t.spd_body}</div>
+    <div class="type-grid">
+      ${typeCard('var(--red)',t.t1_name,'Lightning','tag-best',t.t1_desc)}
+      ${typeCard('var(--amber)',t.t2_name,'Standard','tag-best',t.t2_desc)}
+      ${typeCard('var(--teal)',t.t12_name,'Best','tag-best',t.t12_desc)}
+    </div>
+    <div class="callout tip" style="margin-top:10px">${t.spd_tip}</div>`);
+
+  // Checklist
+  h += `<div class="s-divider">${t.checklist_head}</div>`;
+  const clItems = ['cl1','cl2','cl3','cl4','cl5','cl6','cl7','cl8','cl9','cl10'];
+  h += `<div class="f-card" style="margin-bottom:24px"><div style="display:flex;flex-direction:column;gap:6px">`;
+  clItems.forEach((k,i)=>{
+    const color = i<3?'var(--green)':i<6?'var(--amber)':'var(--teal)';
+    h += `<div class="limit-row"><span class="limit-label">${i+1}. ${t[k]}</span><span class="limit-val" style="color:${color}">→</span></div>`;
+  });
+  h += `</div><div class="callout tip" style="margin-top:12px">${t.cl_tip}</div></div>`;
+
+  $('basicsContent').innerHTML = h;
+}
+
+/* ─── ACCORDION (Basics tab) ─── */
+function toggleAcc(id) {
+  const el = document.getElementById('acc-' + id);
+  if (!el) return;
+  const body = el.querySelector('.basics-body');
+  const isOpen = el.classList.toggle('open');
+  body.style.maxHeight = isOpen ? body.scrollHeight + 'px' : '0';
+}
+
+/* ─── INIT ─── */
+(function init() {
+  loadStorage();
+  renderAppliances();
+  renderProducts();
+  renderBasics();
+  updateSessionUI();
+  // Show setup prompt on Shop tab if no 2FA set
+  if (!has2FA()) {
+    const sp = document.getElementById('setupPrompt');
+    if (sp) sp.style.display = 'flex';
+  }
+})();
+</script>
+<!-- ══ 2FA SETUP MODAL ══ -->
+<div class="modal-overlay" id="modal2faSetup">
+  <div class="modal-box">
+    <div class="step-dots">
+      <div class="step-dot active" id="sdot1"></div>
+      <div class="step-dot" id="sdot2"></div>
+      <div class="step-dot" id="sdot3"></div>
+    </div>
+    <div class="modal-shield shield-setup" id="setupShield">🔐</div>
+    <div class="modal-title" id="setupTitle">Create Admin Password</div>
+    <div class="modal-sub" id="setupSub">Set a strong password to protect your product manager. This is Step 1 of 3.</div>
+    <div class="modal-error" id="setupErr"></div>
+    <div class="modal-success" id="setupOk"></div>
+
+    <!-- Step 1: Password -->
+    <div id="setupStep1">
+      <div class="modal-field">
+        <label>New Password</label>
+        <input type="password" id="setupPw1" class="pw" placeholder="••••••••" maxlength="32">
+      </div>
+      <div class="modal-field">
+        <label>Confirm Password</label>
+        <input type="password" id="setupPw2" class="pw" placeholder="••••••••" maxlength="32">
+      </div>
+      <button class="modal-btn primary" onclick="setupStep1Next()">Continue →</button>
+    </div>
+
+    <!-- Step 2: TOTP QR / key -->
+    <div id="setupStep2" style="display:none">
+      <div class="totp-display" style="margin-bottom:12px">
+        <span class="secret-label">Your Authenticator Key (save this!)</span>
+        <span class="secret-key" id="setupSecretDisplay"></span>
+        <button class="copy-key-btn" onclick="copySecret()">📋 Copy Key</button>
+      </div>
+      <div style="font-size:13px;color:var(--muted2);line-height:1.5;margin-bottom:14px;text-align:center">
+        Add this key manually in <strong style="color:var(--text)">Google Authenticator</strong>, <strong style="color:var(--text)">Authy</strong>, or any TOTP app.<br>
+        Select <em>"Enter setup key"</em> and paste the key above.
+      </div>
+      <button class="modal-btn primary" onclick="setupStep2Next()">I've Added It →</button>
+      <button class="modal-btn ghost" onclick="setupBack()">← Back</button>
+    </div>
+
+    <!-- Step 3: Verify TOTP -->
+    <div id="setupStep3" style="display:none">
+      <div style="font-size:13px;color:var(--muted2);text-align:center;margin-bottom:14px">Enter the 6-digit code from your authenticator app to confirm setup.</div>
+      <div class="modal-field">
+        <label>Authenticator Code</label>
+        <input type="tel" id="setupVerifyCode" placeholder="000000" maxlength="6" inputmode="numeric" oninput="this.value=this.value.replace(/\D/g,'')">
+      </div>
+      <button class="modal-btn primary" onclick="setupStep3Verify()">✓ Confirm & Activate</button>
+      <button class="modal-btn ghost" onclick="setupBack2()">← Back</button>
+    </div>
+
+    <button class="modal-btn ghost" onclick="closeModal('modal2faSetup')" style="margin-top:4px">Cancel</button>
+  </div>
+</div>
+
+<!-- ══ 2FA LOGIN MODAL ══ -->
+<div class="modal-overlay" id="modal2faLogin">
+  <div class="modal-box">
+    <div class="modal-shield shield-lock">🔒</div>
+    <div class="modal-title">Admin Authentication</div>
+    <div class="modal-sub">Enter your password + authenticator code to access the product manager.</div>
+    <div class="modal-error" id="loginErr"></div>
+
+    <div class="modal-field">
+      <label>Password</label>
+      <input type="password" id="loginPw" class="pw" placeholder="••••••••" maxlength="32">
+    </div>
+    <div class="modal-field">
+      <label>Authenticator Code (6 digits)</label>
+      <input type="tel" id="loginOtp" placeholder="000000" maxlength="6" inputmode="numeric" oninput="this.value=this.value.replace(/\D/g,'')" onkeydown="if(event.key==='Enter')verifyLogin()">
+    </div>
+
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+      <div style="font-size:11px;color:var(--muted);font-family:var(--mono)">TOTP refreshes every 30s</div>
+      <div style="flex:1;height:3px;background:var(--border);border-radius:2px">
+        <div id="loginTimerBar" style="height:100%;background:var(--amber);border-radius:2px;transition:width 1s linear"></div>
+      </div>
+      <div id="loginTimerSec" style="font-family:var(--mono);font-size:11px;color:var(--muted2);width:26px;text-align:right"></div>
+    </div>
+
+    <div id="lockoutMsg" style="display:none;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:10px;color:var(--red);font-family:var(--mono);font-size:13px;text-align:center;margin-bottom:12px"></div>
+
+    <button class="modal-btn primary" onclick="verifyLogin()" id="loginBtn">🔓 Unlock Admin</button>
+    <button class="modal-btn ghost" onclick="closeModal('modal2faLogin')">Cancel</button>
+    <div style="margin-top:12px;text-align:center">
+      <button style="background:none;border:none;color:var(--muted);font-size:11px;font-family:var(--mono);cursor:pointer;text-decoration:underline" onclick="resetAdmin()">Reset admin credentials</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CONFIRM DELETE MODAL ══ -->
+<div class="modal-overlay" id="modalConfirmDel">
+  <div class="modal-box">
+    <div class="modal-shield shield-danger">🗑️</div>
+    <div class="modal-title">Delete Product?</div>
+    <div class="modal-sub" id="delProductName">This action cannot be undone.</div>
+    <button class="modal-btn danger" id="confirmDelBtn">Yes, Delete</button>
+    <button class="modal-btn ghost" onclick="closeModal('modalConfirmDel')">Cancel</button>
+  </div>
+</div>
+
+</body>
+</html>
