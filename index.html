@@ -8,6 +8,9 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>SolarForge Pro</title>
 <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700;800;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<!-- Firebase SDK (compat version — works in plain HTML) -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 <style>
 :root {
   --amber:   #F59E0B;
@@ -73,6 +76,17 @@ html, body {
 .brand-name { font-size: 20px; font-weight: 900; letter-spacing: 0.04em; line-height: 1; }
 .brand-name span { color: var(--amber); }
 .brand-sub { font-size: 10px; color: var(--muted); letter-spacing: 0.18em; text-transform: uppercase; font-family: var(--mono); }
+
+.loads-shortcut {
+  background: rgba(245,158,11,0.12);
+  border: 1.5px solid rgba(245,158,11,0.35);
+  color: var(--amber); font-family: var(--body); font-size: 13px;
+  font-weight: 800; letter-spacing: 0.04em;
+  border-radius: 10px; padding: 0 14px; height: 40px;
+  cursor: pointer; display: flex; align-items: center; gap: 5px;
+  transition: all 0.15s; white-space: nowrap; flex-shrink: 0;
+}
+.loads-shortcut:active { background: rgba(245,158,11,0.25); }
 
 .calc-trigger {
   background: linear-gradient(135deg, var(--amber), var(--orange));
@@ -379,12 +393,144 @@ textarea { resize: none; min-height: 72px; }
   content: ''; flex: 1; height: 1px; background: var(--border);
 }
 
-/* wiring diagram */
-.wiring-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
-.wiring-flow {
-  display: flex; align-items: center; gap: 0;
-  min-width: max-content; padding: 8px 0;
+/* ════════════════════════════════════════
+   IMPROVED WIRING DIAGRAM
+════════════════════════════════════════ */
+.wiring-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 8px; }
+
+/* full diagram container */
+.wdiagram {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 0; padding: 8px 4px; min-width: 280px;
 }
+
+/* each component block */
+.wcomp {
+  display: flex; flex-direction: column; align-items: center;
+  width: 100%; max-width: 320px;
+}
+
+/* the node box itself */
+.wbox {
+  width: 100%; border-radius: 12px; padding: 12px 14px;
+  border: 2px solid; display: flex; align-items: center; gap: 12px;
+  position: relative;
+}
+.wbox-icon { font-size: 28px; flex-shrink: 0; line-height: 1; }
+.wbox-info { flex: 1; min-width: 0; }
+.wbox-title { font-size: 14px; font-weight: 900; line-height: 1.2; }
+.wbox-spec  { font-family: var(--mono); font-size: 12px; font-weight: 700; margin-top: 2px; }
+.wbox-desc  { font-size: 11px; color: var(--muted2); margin-top: 3px; line-height: 1.4; }
+.wbox-badge {
+  position: absolute; top: -9px; right: 10px;
+  font-size: 10px; font-family: var(--mono); font-weight: 800;
+  padding: 2px 8px; border-radius: 4px; letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* node color themes */
+.wb-solar   { border-color: var(--amber);  background: rgba(245,158,11,0.07); }
+.wb-solar   .wbox-title { color: var(--amber); }
+.wb-solar   .wbox-badge { background: rgba(245,158,11,0.2); color: var(--amber); border: 1px solid rgba(245,158,11,0.3); }
+.wb-breaker { border-color: var(--red);    background: rgba(239,68,68,0.07); }
+.wb-breaker .wbox-title { color: var(--red); }
+.wb-breaker .wbox-badge { background: rgba(239,68,68,0.2); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+.wb-spd     { border-color: var(--amber2); background: rgba(252,211,77,0.07); }
+.wb-spd     .wbox-title { color: var(--amber2); }
+.wb-spd     .wbox-badge { background: rgba(252,211,77,0.15); color: var(--amber2); border: 1px solid rgba(252,211,77,0.3); }
+.wb-scc     { border-color: var(--blue);   background: rgba(59,130,246,0.07); }
+.wb-scc     .wbox-title { color: var(--blue); }
+.wb-scc     .wbox-badge { background: rgba(59,130,246,0.2); color: var(--blue); border: 1px solid rgba(59,130,246,0.3); }
+.wb-battery { border-color: var(--green);  background: rgba(16,185,129,0.07); }
+.wb-battery .wbox-title { color: var(--green); }
+.wb-battery .wbox-badge { background: rgba(16,185,129,0.2); color: var(--green); border: 1px solid rgba(16,185,129,0.3); }
+.wb-bms     { border-color: var(--purple); background: rgba(139,92,246,0.07); }
+.wb-bms     .wbox-title { color: var(--purple); }
+.wb-bms     .wbox-badge { background: rgba(139,92,246,0.2); color: var(--purple); border: 1px solid rgba(139,92,246,0.3); }
+.wb-inverter{ border-color: var(--orange); background: rgba(234,88,12,0.07); }
+.wb-inverter.wbox-title { color: var(--orange); }
+.wb-inverter .wbox-title { color: var(--orange); }
+.wb-inverter .wbox-badge{ background: rgba(234,88,12,0.2); color: var(--orange); border: 1px solid rgba(234,88,12,0.3); }
+.wb-grid    { border-color: var(--teal);   background: rgba(6,182,212,0.07); }
+.wb-grid    .wbox-title { color: var(--teal); }
+.wb-ats     { border-color: var(--purple); background: rgba(139,92,246,0.07); }
+.wb-ats     .wbox-title { color: var(--purple); }
+.wb-load    { border-color: var(--muted2); background: rgba(100,116,139,0.07); }
+.wb-load    .wbox-title { color: var(--muted2); }
+
+/* wire connector between nodes */
+.wconnector {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 0; width: 100%; max-width: 320px; position: relative;
+}
+.wline-wrap {
+  display: flex; align-items: stretch; width: 60px; gap: 0;
+}
+.wline-pos, .wline-neg {
+  flex: 1; min-height: 28px;
+}
+.wline-pos { border-right: 3px solid var(--red); }
+.wline-neg { border-left: 3px solid var(--muted); }
+.wline-ac  { border-right: 3px solid var(--teal); }
+
+/* wire label pill floating on connector */
+.wlabel-row {
+  display: flex; align-items: center; justify-content: center;
+  gap: 6px; padding: 4px 0;
+  width: 100%; position: relative;
+}
+.wlabel-pill {
+  background: var(--card2); border: 1px solid var(--border2);
+  border-radius: 99px; padding: 4px 10px;
+  font-family: var(--mono); font-size: 11px; font-weight: 700;
+  display: flex; align-items: center; gap: 5px; flex-shrink: 0;
+  white-space: nowrap;
+}
+.wlabel-pill .wl-wire  { color: var(--teal); }
+.wlabel-pill .wl-brk   { color: var(--red); }
+.wlabel-pill .wl-vd    { color: var(--muted2); }
+.wlabel-sep { color: var(--border2); font-size: 12px; }
+
+/* color legend */
+.wlegend {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  padding: 12px; background: var(--card2);
+  border: 1px solid var(--border); border-radius: var(--r2);
+  margin-top: 12px;
+}
+.wleg-item {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 11px; color: var(--muted2); font-family: var(--mono);
+}
+.wleg-dot {
+  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+}
+
+/* side branch (for hybrid grid / ats) */
+.wbranch {
+  display: flex; align-items: center; gap: 0;
+  width: 100%; max-width: 320px; margin: 4px 0;
+}
+.wbranch-line {
+  flex: 1; height: 2px; background: var(--purple);
+}
+.wbranch-box {
+  padding: 8px 12px; border: 2px solid var(--purple);
+  border-radius: 8px; background: rgba(139,92,246,0.07);
+  font-family: var(--mono); font-size: 11px; font-weight: 700;
+  color: var(--purple); text-align: center; white-space: nowrap;
+}
+
+/* tip box */
+.wtip {
+  border-radius: var(--r2); padding: 10px 12px; margin-top: 10px;
+  font-size: 12px; line-height: 1.5; width: 100%; max-width: 320px;
+}
+.wtip-safety { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); color: var(--red); }
+.wtip-info   { background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.25); color: var(--blue); }
+.wtip-good   { background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.25); color: var(--green); }
+
+/* old compact nodes — keep for fallback */
 .wnode {
   background: var(--card2); border: 2px solid var(--border2);
   border-radius: 8px; padding: 10px 12px;
@@ -939,6 +1085,27 @@ textarea { resize: none; min-height: 72px; }
   content: ''; flex: 1; height: 1px; background: var(--border);
 }
 
+/* db status bar — inline in shop tab, not fixed */
+.db-status-bar {
+  border-radius: var(--r2); padding: 9px 14px; margin-bottom: 12px;
+  display: none; align-items: center; gap: 8px;
+  font-family: var(--mono); font-size: 12px; font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.db-ok  { background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.3); color: var(--green); display: flex !important; }
+.db-err { background: rgba(245,158,11,0.1);  border: 1px solid rgba(245,158,11,0.3);  color: var(--amber); display: flex !important; }
+
+/* loading skeleton */
+.prod-skeleton {
+  background: var(--card); border-radius: var(--r); padding: 16px;
+  display: flex; gap: 12px; animation: shimmer 1.4s infinite;
+}
+@keyframes shimmer {
+  0%,100% { opacity: 0.5; } 50% { opacity: 1; }
+}
+.skel-img  { width: 80px; height: 80px; border-radius: var(--r2); background: var(--border2); flex-shrink: 0; }
+.skel-line { height: 12px; border-radius: 4px; background: var(--border2); margin-bottom: 8px; }
+
 /* ── tablet wider layout ── */
 @media (min-width: 600px) {
   .tab-pane { padding: 18px; max-width: 680px; margin: 0 auto; }
@@ -1247,6 +1414,18 @@ textarea { resize: none; min-height: 72px; }
       </div>
     </div>
 
+    <!-- Go to Loads reminder -->
+    <div style="background:rgba(245,158,11,0.06);border:1.5px dashed rgba(245,158,11,0.35);border-radius:var(--r);padding:14px 16px;margin-bottom:6px">
+      <div style="font-size:13px;color:var(--muted2);margin-bottom:10px;line-height:1.5">
+        💡 <strong style="color:var(--amber)">Don't forget your loads!</strong><br>
+        Add your appliances first so the calculator can compute your daily energy consumption.
+      </div>
+      <button class="loads-shortcut" style="width:100%;justify-content:center;height:48px;font-size:14px"
+        onclick="showPane('loads', document.querySelectorAll('.nav-item')[1])">
+        💡 Go to Loads Tab → Add Appliances
+      </button>
+    </div>
+
   </div><!-- /pane-system -->
 
   <!-- ─── LOADS TAB ─── -->
@@ -1309,6 +1488,39 @@ textarea { resize: none; min-height: 72px; }
         <h2>Product Showcase</h2>
         <p>Trusted gear for your solar build — tap to shop</p>
       </div>
+    </div>
+
+    <!-- Tagalog Legitimacy Notice -->
+    <div style="background:rgba(245,158,11,0.07);border:1.5px solid rgba(245,158,11,0.3);border-radius:var(--r);padding:14px 16px;margin-bottom:14px;position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;left:0;width:4px;height:100%;background:var(--amber);border-radius:4px 0 0 4px"></div>
+      <div style="padding-left:8px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <span style="font-size:22px">📢</span>
+          <div style="font-size:13px;font-weight:900;color:var(--amber);letter-spacing:0.04em;text-transform:uppercase;font-family:var(--mono)">Paunawa / Notice</div>
+        </div>
+        <p style="font-size:13px;color:var(--text);line-height:1.65;margin-bottom:8px">
+          🇵🇭 <strong>Lahat ng mga produktong nakalista dito ay personal kong sinuri at napatunayan.</strong>
+          Ang mga ito ay base sa aking sariling karanasan at mga nangyayaring reviews ng ibang mga tao.
+          Hindi lahat ay personally ko na na-checkout — ang ilan ay base na rin sa kanilang mga
+          <em>verified reviews</em> at reputasyon ng seller/brand.
+        </p>
+        <p style="font-size:12px;color:var(--muted2);line-height:1.6">
+          ⚠️ <strong style="color:var(--amber)">Disclaimer:</strong>
+          Ang mga affiliate links dito ay nagbibigay ng maliit na komisyon sa akin
+          kung bibili kayo — <em>walang dagdag na bayad sa inyo</em>.
+          Palaging mag-compare ng presyo at basahin ang reviews bago bumili.
+          Ang final na desisyon ay nasa inyo pa rin. ✅
+        </p>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid rgba(245,158,11,0.2)">
+          <span style="font-size:14px">✍️</span>
+          <span style="font-size:11px;color:var(--muted2);font-family:var(--mono)">— SolarForge Admin · Verified by personal use &amp; community reviews</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- DB Status (Firebase connection feedback) -->
+    <div class="db-status-bar" id="dbStatusBar">
+      <span id="dbStatusText"></span>
     </div>
 
     <!-- Session bar -->
@@ -1801,16 +2013,117 @@ let appliances = [
 let products = [];
 let currentCat = 'All';
 
-/* ─── storage ─── */
-function loadStorage() {
+/* ══════════════════════════════════════════
+   🔥 FIREBASE CONFIG — PASTE YOUR VALUES HERE
+   Replace every value below with your own
+   from Firebase Console → Project Settings
+══════════════════════════════════════════ */
+const firebaseConfig = {
+  apiKey: "AIzaSyBl7_Xsb-aVtJ7Cp-ZHt7qsXb5GP455Ruc",
+  authDomain: "solarforge-88b56.firebaseapp.com",
+  projectId: "solarforge-88b56",
+  storageBucket: "solarforge-88b56.firebasestorage.app",
+  messagingSenderId: "62977659435",
+  appId: "1:62977659435:web:0075be22cecbc5093d906e",
+  measurementId: "G-NDCWKW31L9"
+};
+
+/* ── Initialize Firebase ── */
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const PRODUCTS_COL = 'products'; // Firestore collection name
+
+/* ── DB status indicator ── */
+let dbReady = false;
+function setDbStatus(ok, msg) {
+  dbReady = ok;
+  const bar = document.getElementById('dbStatusBar');
+  const txt = document.getElementById('dbStatusText');
+  if (!bar || !txt) return;
+  bar.className = 'db-status-bar ' + (ok ? 'db-ok' : 'db-err');
+  txt.textContent = msg;
+  bar.style.display = 'flex';
+  if (ok) setTimeout(() => { bar.style.display = 'none'; }, 3000);
+}
+
+/* ─── FIRESTORE CRUD ─── */
+async function loadProducts() {
+  setDbStatus(false, '⏳ Loading products from database…');
+  try {
+    const snap = await db.collection(PRODUCTS_COL).orderBy('createdAt', 'asc').get();
+    products = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    setDbStatus(true, '✓ Products loaded from Firebase');
+    renderProducts();
+  } catch(e) {
+    // Fallback to localStorage if Firebase not configured yet
+    console.warn('Firebase load failed, using localStorage fallback:', e.message);
+    loadLocalStorage();
+    setDbStatus(false, '⚠ Using offline mode — configure Firebase config');
+    renderProducts();
+  }
+}
+
+async function addProductDB(prod) {
+  try {
+    const docRef = await db.collection(PRODUCTS_COL).add({
+      ...prod,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    prod.id = docRef.id;
+    products.push(prod);
+    renderProducts();
+    showToast('✓ Product saved to database');
+  } catch(e) {
+    console.error('Add failed:', e);
+    showToast('⚠ Saved offline only — check Firebase config');
+    products.push(prod);
+    saveLocalStorage();
+    renderProducts();
+  }
+}
+
+async function updateProductDB(prod) {
+  try {
+    const { id, ...data } = prod;
+    await db.collection(PRODUCTS_COL).doc(id).update({
+      ...data,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    const idx = products.findIndex(p => p.id === id);
+    if (idx >= 0) products[idx] = prod;
+    renderProducts();
+    showToast('✓ Product updated in database');
+  } catch(e) {
+    console.error('Update failed:', e);
+    showToast('⚠ Update failed — check Firebase config');
+  }
+}
+
+async function deleteProductDB(id) {
+  try {
+    await db.collection(PRODUCTS_COL).doc(id).delete();
+    products = products.filter(p => p.id !== id);
+    renderProducts();
+    showToast('🗑 Product deleted from database');
+  } catch(e) {
+    console.error('Delete failed:', e);
+    showToast('⚠ Delete failed — check Firebase config');
+  }
+}
+
+/* ─── localStorage FALLBACK (offline mode) ─── */
+function loadLocalStorage() {
   try {
     const p = localStorage.getItem('sf_products');
     if (p) products = JSON.parse(p);
   } catch(e) {}
 }
-function saveStorage() {
+function saveLocalStorage() {
   try { localStorage.setItem('sf_products', JSON.stringify(products)); } catch(e) {}
 }
+// Keep saveStorage as alias for backward-compat
+function loadStorage() { loadLocalStorage(); }
+function saveStorage() { saveLocalStorage(); }
 
 /* ─── helpers ─── */
 const $  = id => document.getElementById(id);
@@ -2104,64 +2417,263 @@ function calculate() {
 
   $('resultsContent').innerHTML=html;
 
-  /* ── BUILD WIRING ── */
-  let whtml='';
-  // wiring diagram
-  whtml += `<div class="card">
-    <div class="card-head"><div class="card-icon ci-amber">📐</div><div><div class="card-title">Wiring Diagram</div></div></div>
-    <div class="wiring-scroll"><div class="wiring-flow">`;
-  whtml += `<div class="wnode panel">☀️<br>Panel<br>${panelW}W</div><div class="warrow">→</div>`;
-  whtml += `<div class="wnode breaker">DC Brk<br>${brkPanel}A</div><div class="warrow">→</div>`;
-  if(spdSolar!=='none') { whtml+=`<div class="wnode breaker">SPD<br>${spdSolar}</div><div class="warrow">→</div>`; }
-  whtml += `<div class="wnode scc">${sccType.toUpperCase()}<br>${sccA}A</div><div class="warrow">→</div>`;
-  whtml += `<div class="wnode battery">🔋<br>${batV}V/${batAh}Ah</div><div class="warrow">→</div>`;
-  if(setup==='hybrid'&&atsType!=='none') { whtml+=`<div class="wnode ats">${atsType.toUpperCase()}</div><div class="warrow">↕</div><div class="wnode grid">🏭<br>Grid</div><div class="warrow">→</div>`; }
-  whtml += `<div class="wnode inverter">⚡<br>Inv<br>${invW}W</div><div class="warrow">→</div>`;
-  if(setup==='ongrid') { whtml+=`<div class="wnode grid">🏭<br>Grid</div><div class="warrow">→</div>`; }
-  whtml += `<div class="wnode load">🏠<br>Load</div>`;
-  whtml += `</div></div></div>`;
+  /* ── BUILD WIRING DIAGRAM ── */
+  let whtml = '';
 
-  // wire sizes
+  // helper: wire connector between nodes
+  function wConn(wireAwg, brkSize, vDropPctVal, isAC=false) {
+    const vdColor = vDropPctVal > 3 ? 'var(--red)' : vDropPctVal > 2 ? 'var(--orange)' : 'var(--green)';
+    const lineClass = isAC ? 'wline-ac' : 'wline-pos';
+    return `
+      <div class="wconnector">
+        <div class="wlabel-row">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+            <div style="width:3px;height:14px;background:${isAC?'var(--teal)':'var(--red)'}"></div>
+          </div>
+          <div class="wlabel-pill">
+            <span class="wl-wire">🔌 ${wireAwg}</span>
+            <span class="wlabel-sep">|</span>
+            <span class="wl-brk">⚡ ${brkSize}A fuse</span>
+            <span class="wlabel-sep">|</span>
+            <span style="color:${vdColor}">📉 ${vDropPctVal.toFixed(1)}% drop</span>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+            <div style="width:3px;height:14px;background:var(--muted)"></div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  // helper: simple connector (no wire data needed)
+  function wConnSimple(label='', color='var(--muted2)') {
+    return `<div style="display:flex;flex-direction:column;align-items:center;gap:0;width:100%;max-width:320px">
+      <div style="width:3px;height:12px;background:${color}"></div>
+      ${label?`<div style="font-family:var(--mono);font-size:10px;color:${color};padding:3px 8px;border:1px solid ${color}33;border-radius:4px;background:${color}11">${label}</div>`:''}
+      <div style="width:3px;height:12px;background:${color}"></div>
+    </div>`;
+  }
+
+  // helper: component box
+  function wBox(theme, icon, title, spec, desc, badge='') {
+    return `<div class="wcomp">
+      <div class="wbox ${theme}">
+        ${badge?`<div class="wbox-badge">${badge}</div>`:''}
+        <div class="wbox-icon">${icon}</div>
+        <div class="wbox-info">
+          <div class="wbox-title">${title}</div>
+          ${spec?`<div class="wbox-spec">${spec}</div>`:''}
+          ${desc?`<div class="wbox-desc">${desc}</div>`:''}
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // compute actual vDrops for diagram
+  const vdPanel = vDropPct(vDrop(cableP, solarCurrent, wireP.r), batV);
+  const vdScc   = vDropPct(vDrop(cableS, sccA,         wireS.r), batV);
+  const vdInv   = vDropPct(vDrop(cableI, invCurrent,   wireI.r), batV);
+
   whtml += `<div class="card">
-    <div class="card-head"><div class="card-icon ci-teal">🔧</div><div><div class="card-title">Wire Sizing</div></div></div>
+    <div class="card-head"><div class="card-icon ci-amber">📐</div>
+      <div><div class="card-title">Wiring Diagram</div>
+      <div class="card-subtitle">Read top → bottom · your actual system</div></div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;align-items:center;padding:8px 0">`;
+
+  // ── SOLAR PANELS ──
+  const panelCount = parseInt($('panelCount').value)||1;
+  const voc = parseFloat($('panelVoltage').value)||0;
+  whtml += wBox('wb-solar','☀️','Solar Panel Array',
+    `${panelW}W total · ${panelCount} panel${panelCount>1?'s':''}`,
+    `${voc?'Voc: '+voc+'V · ':''} DC power source`,
+    'SOURCE');
+
+  // DC Breaker panel side
+  whtml += wConnSimple('DC cable','var(--amber)');
+  whtml += wBox('wb-breaker','🔴','DC Breaker',
+    `${brkPanel}A`,
+    'Protects wire from panel to SCC. Cuts power if there is a short circuit.',
+    'PROTECTION');
+
+  // SPD if installed
+  if(spdSolar!=='none'){
+    whtml += wConnSimple('','var(--red)');
+    whtml += wBox('wb-spd','⚡','Surge Protection (SPD)',
+      spdSolar,
+      'Diverts lightning & voltage spikes to ground before they reach your SCC.',
+      'PROTECTION');
+  }
+
+  // Wire connector → SCC
+  whtml += wConn(wireP.awg, brkPanel, vdPanel);
+
+  // SCC
+  whtml += wBox('wb-scc', sccType==='mppt'?'🔵':'🔷',
+    `${sccType.toUpperCase()} Charge Controller`,
+    `${sccA}A rating`,
+    sccType==='mppt'
+      ? 'Converts excess panel voltage into charging current. Most efficient (93–98%).'
+      : 'Regulates panel voltage to match battery. Simple & affordable.',
+    sccType.toUpperCase());
+
+  // Wire connector → Battery
+  whtml += wConn(wireS.awg, brkScc, vdScc);
+
+  // Battery bank
+  whtml += wBox('wb-battery','🔋','Battery Bank',
+    `${batV}V · ${batAh}Ah · ${BAT_NAMES[sv('batType')]}`,
+    `Stores ${fmt(batV*batAh,0)}Wh · Usable: ${fmt(batV*batAh*DOD[sv('batType')],0)}Wh (${Math.round(DOD[sv('batType')]*100)}% DoD)`,
+    'STORAGE');
+
+  // BMS (if lithium) - use bmsA already declared above
+  if(bmsA>0 && (sv('batType')==='lifepo4'||sv('batType')==='nmc')){
+    whtml += wConnSimple('internal','var(--purple)');
+    whtml += wBox('wb-bms','🛡️','BMS',
+      `${bmsA}A rated`,
+      'Battery Management System — balances cells, prevents over-charge, over-discharge, and overcurrent.',
+      'SAFETY');
+  }
+
+  // Hybrid branch
+  if(setup==='hybrid' && atsType!=='none'){
+    whtml += wConnSimple('','var(--purple)');
+    whtml += `<div class="wcomp">
+      <div style="display:flex;align-items:center;gap:0;width:100%">
+        <div style="flex:1;height:2px;background:var(--purple);opacity:0.5"></div>
+        <div style="padding:8px 12px;border:2px solid var(--purple);border-radius:10px;background:rgba(139,92,246,0.1);font-family:var(--mono);font-size:12px;font-weight:800;color:var(--purple);text-align:center">
+          ${atsType.toUpperCase()}<br><span style="font-size:10px;font-weight:400;color:var(--muted2)">Auto Transfer Switch</span>
+        </div>
+        <div style="flex:1;display:flex;align-items:center">
+          <div style="flex:1;height:2px;background:var(--teal);opacity:0.5"></div>
+          <div style="padding:8px 12px;border:2px solid var(--teal);border-radius:10px;background:rgba(6,182,212,0.1);font-family:var(--mono);font-size:12px;font-weight:800;color:var(--teal);text-align:center">
+            🏭<br><span style="font-size:10px">GRID</span>
+          </div>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--muted2);text-align:center;margin-top:6px;font-family:var(--mono)">↕ switches between battery and grid automatically</div>
+    </div>`;
+  }
+
+  // Wire connector → Inverter
+  whtml += wConn(wireI.awg, brkInv, vdInv);
+
+  // Inverter
+  whtml += wBox('wb-inverter','🔌','Inverter',
+    `${invW}W · ${sv('invType')==='offgrid'?'Pure Sine Wave':sv('invType')==='hybrid'?'Hybrid':'Grid-Tie'}`,
+    `Converts DC battery power → AC for your appliances. Efficiency: ${Math.round(parseFloat($('invEff').value||0.9)*100)}%`,
+    'DC→AC');
+
+  // On-grid export
+  if(setup==='ongrid'){
+    whtml += wConnSimple('AC export','var(--teal)');
+    whtml += wBox('wb-grid','🏭','Utility Grid',
+      'Net Metering',
+      'Excess solar production is exported to the grid. You earn credits on your electricity bill.',
+      'GRID');
+  }
+
+  // AC wire → Load
+  whtml += wConnSimple('AC output','var(--teal)');
+  const totalLoadW = appliances.reduce((s,a)=>s+a.watts*a.qty, 0);
+  whtml += wBox('wb-load','🏠','Your Appliances (Load)',
+    `${totalLoadW}W total · ${appliances.length} item${appliances.length!==1?'s':''}`,
+    appliances.slice(0,3).map(a=>`${a.name} ${a.watts}W`).join(' · ') + (appliances.length>3?` · +${appliances.length-3} more`:''),
+    'LOAD');
+
+  whtml += `</div>`; // end center column
+
+  // ── Color Legend ──
+  whtml += `<div class="wlegend">
+    <div class="wleg-item"><div class="wleg-dot" style="background:var(--amber)"></div>Solar / DC+</div>
+    <div class="wleg-item"><div class="wleg-dot" style="background:var(--red)"></div>Breaker</div>
+    <div class="wleg-item"><div class="wleg-dot" style="background:var(--blue)"></div>Charge Controller</div>
+    <div class="wleg-item"><div class="wleg-dot" style="background:var(--green)"></div>Battery</div>
+    <div class="wleg-item"><div class="wleg-dot" style="background:var(--orange)"></div>Inverter</div>
+    <div class="wleg-item"><div class="wleg-dot" style="background:var(--teal)"></div>AC / Grid</div>
+    <div class="wleg-item"><div class="wleg-dot" style="background:var(--purple)"></div>ATS / BMS</div>
+    <div class="wleg-item"><div class="wleg-dot" style="background:var(--muted2)"></div>Load</div>
+  </div>
+
+  <div class="wtip wtip-safety" style="width:100%;max-width:320px;margin:10px auto 0">
+    ⚡ <strong>Rule #1:</strong> Always connect/disconnect from the LOAD side first. Never disconnect panels while SCC is under load.
+  </div>
+  <div class="wtip wtip-info" style="width:100%;max-width:320px;margin:6px auto 0">
+    🔴 = Positive wire &nbsp;|&nbsp; ⚫ = Negative wire &nbsp;|&nbsp; Always fuse within 18 inches of battery (+) terminal.
+  </div>
+
+  </div>`; // end card
+
+  // wire sizes card
+  whtml += `<div class="card">
+    <div class="card-head"><div class="card-icon ci-teal">🔧</div><div>
+      <div class="card-title">Wire Sizing Summary</div>
+      <div class="card-subtitle">Design current = operating current × 1.25</div>
+    </div></div>
     <div class="parts-list">
-      <div class="part-row"><div class="part-main"><div class="part-name">Panel → SCC</div><div class="part-sub">${panelDesignA.toFixed(1)}A design current (×1.25)</div></div><span class="part-spec">${wireP.awg}</span></div>
-      <div class="part-row"><div class="part-main"><div class="part-name">SCC → Battery</div><div class="part-sub">${sccDesignA.toFixed(1)}A design current</div></div><span class="part-spec">${wireS.awg}</span></div>
-      <div class="part-row"><div class="part-main"><div class="part-name">Battery → Inverter</div><div class="part-sub">${invDesignA.toFixed(1)}A design current</div></div><span class="part-spec">${wireI.awg}</span></div>
+      <div class="part-row">
+        <div class="part-main">
+          <div class="part-name">☀️ Panel → SCC</div>
+          <div class="part-sub">${panelDesignA.toFixed(1)}A design · ${cableP}m run · ${vdPanel.toFixed(1)}% drop</div>
+        </div>
+        <span class="part-spec" style="color:${vdPanel>3?'var(--red)':'var(--green)'}">${wireP.awg}</span>
+      </div>
+      <div class="part-row">
+        <div class="part-main">
+          <div class="part-name">🔵 SCC → Battery</div>
+          <div class="part-sub">${sccDesignA.toFixed(1)}A design · ${cableS}m run · ${vdScc.toFixed(1)}% drop</div>
+        </div>
+        <span class="part-spec" style="color:${vdScc>2?'var(--red)':'var(--green)'}">${wireS.awg}</span>
+      </div>
+      <div class="part-row">
+        <div class="part-main">
+          <div class="part-name">🔋 Battery → Inverter</div>
+          <div class="part-sub">${invDesignA.toFixed(1)}A design · ${cableI}m run · ${vdInv.toFixed(1)}% drop</div>
+        </div>
+        <span class="part-spec" style="color:${vdInv>2?'var(--red)':'var(--green)'}">${wireI.awg}</span>
+      </div>
     </div>
   </div>`;
 
-  // breakers
+  // breakers card
   whtml += `<div class="card">
-    <div class="card-head"><div class="card-icon ci-red">🔴</div><div><div class="card-title">DC Breaker Sizes</div></div></div>
+    <div class="card-head"><div class="card-icon ci-red">🔴</div><div>
+      <div class="card-title">DC Breaker / Fuse Sizes</div>
+      <div class="card-subtitle">Size = circuit current × 1.25, round up to next 5A</div>
+    </div></div>
     <div class="parts-list">
-      <div class="part-row"><div class="part-main"><div class="part-name">Panel → SCC</div><div class="part-sub">Current × 1.25 → next 5A step</div></div><span class="part-spec">${brkPanel}A</span></div>
-      <div class="part-row"><div class="part-main"><div class="part-name">SCC → Battery</div><div class="part-sub">SCC rated current × 1.25</div></div><span class="part-spec">${brkScc}A</span></div>
-      <div class="part-row"><div class="part-main"><div class="part-name">Battery → Inverter</div><div class="part-sub">Inverter current × 1.25</div></div><span class="part-spec">${brkInv}A</span></div>
+      <div class="part-row"><div class="part-main"><div class="part-name">Panel → SCC breaker</div><div class="part-sub">Solar current × 1.25 → ${(solarCurrent*1.25).toFixed(1)}A → round up</div></div><span class="part-spec">${brkPanel}A</span></div>
+      <div class="part-row"><div class="part-main"><div class="part-name">SCC → Battery breaker</div><div class="part-sub">SCC rating × 1.25 → ${(sccA*1.25).toFixed(1)}A → round up</div></div><span class="part-spec">${brkScc}A</span></div>
+      <div class="part-row"><div class="part-main"><div class="part-name">Battery → Inverter fuse</div><div class="part-sub">Inverter current × 1.25 → ${(invCurrent*1.25).toFixed(1)}A → round up</div></div><span class="part-spec">${brkInv}A</span></div>
     </div>
   </div>`;
 
-  // protection notes
+  // protection
   let protHtml = '';
-  if(spdSolar!=='none')  protHtml+=`<div class="part-row"><div class="part-main"><div class="part-name">Solar SPD</div></div><span class="part-spec" style="color:var(--green)">${spdSolar} ✓</span></div>`;
-  if(spdDC!=='none')     protHtml+=`<div class="part-row"><div class="part-main"><div class="part-name">DC SPD</div></div><span class="part-spec" style="color:var(--green)">Installed ✓</span></div>`;
-  if(spdAC!=='none')     protHtml+=`<div class="part-row"><div class="part-main"><div class="part-name">AC SPD</div></div><span class="part-spec" style="color:var(--green)">Installed ✓</span></div>`;
-  if(atsType!=='none')   protHtml+=`<div class="part-row"><div class="part-main"><div class="part-name">Transfer Switch</div></div><span class="part-spec" style="color:var(--green)">${atsType.toUpperCase()} ✓</span></div>`;
-  if(lvd!=='none')       protHtml+=`<div class="part-row"><div class="part-main"><div class="part-name">LVD / Relay</div></div><span class="part-spec" style="color:var(--green)">${lvd.toUpperCase()} ✓</span></div>`;
-  if(hasBalancer)        protHtml+=`<div class="part-row"><div class="part-main"><div class="part-name">Active Balancer</div></div><span class="part-spec" style="color:var(--green)">Installed ✓</span></div>`;
-  if(wattMeter!=='none') protHtml+=`<div class="part-row"><div class="part-main"><div class="part-name">Watt Meter</div></div><span class="part-spec" style="color:var(--green)">${wattMeter.toUpperCase()} ✓</span></div>`;
+  if(spdSolar!=='none')  protHtml+=`<div class="part-row"><div class="part-main"><div class="part-name">Solar SPD</div><div class="part-sub">Installed on solar input side</div></div><span class="part-spec" style="color:var(--green)">${spdSolar} ✓</span></div>`;
+  if(spdDC!=='none')     protHtml+=`<div class="part-row"><div class="part-main"><div class="part-name">DC SPD</div><div class="part-sub">Battery busbar protection</div></div><span class="part-spec" style="color:var(--green)">Installed ✓</span></div>`;
+  if(spdAC!=='none')     protHtml+=`<div class="part-row"><div class="part-main"><div class="part-name">AC SPD</div><div class="part-sub">Inverter output / AC panel</div></div><span class="part-spec" style="color:var(--green)">Installed ✓</span></div>`;
+  if(atsType!=='none')   protHtml+=`<div class="part-row"><div class="part-main"><div class="part-name">Transfer Switch</div><div class="part-sub">Auto-switches between grid and battery</div></div><span class="part-spec" style="color:var(--green)">${atsType.toUpperCase()} ✓</span></div>`;
+  if(lvd!=='none')       protHtml+=`<div class="part-row"><div class="part-main"><div class="part-name">LVD / Relay</div><div class="part-sub">Disconnects load when battery is low</div></div><span class="part-spec" style="color:var(--green)">${lvd.toUpperCase()} ✓</span></div>`;
+  if(hasBalancer)        protHtml+=`<div class="part-row"><div class="part-main"><div class="part-name">Active Balancer</div><div class="part-sub">Equalizes cell voltages inside battery</div></div><span class="part-spec" style="color:var(--green)">Installed ✓</span></div>`;
+  if(wattMeter!=='none') protHtml+=`<div class="part-row"><div class="part-main"><div class="part-name">Watt / Energy Meter</div><div class="part-sub">Monitors power in real time</div></div><span class="part-spec" style="color:var(--green)">${wattMeter.toUpperCase()} ✓</span></div>`;
   if(protHtml){
     whtml+=`<div class="card">
-      <div class="card-head"><div class="card-icon ci-green">✅</div><div><div class="card-title">Protection Devices</div></div></div>
+      <div class="card-head"><div class="card-icon ci-green">✅</div><div>
+        <div class="card-title">Protection Devices Installed</div>
+        <div class="card-subtitle">These protect your system from damage</div>
+      </div></div>
       <div class="parts-list">${protHtml}</div></div>`;
   }
 
   if(sccType==='mppt'){
     whtml+=`<div class="card">
-      <div class="card-head"><div class="card-icon ci-blue">📐</div><div><div class="card-title">MPPT Sizing Rule (130%)</div></div></div>
+      <div class="card-head"><div class="card-icon ci-blue">📐</div><div><div class="card-title">MPPT Oversizing Check (130% Rule)</div></div></div>
       <div class="alert-item info">
-        <div class="alert-title">Max Panel Power</div>
-        <div class="alert-body">SCC ${sccA}A × ${batV}V × 1.3 = <strong>${maxPanelW.toFixed(0)}W</strong>.<br>Your panels: ${panelW}W — ${panelW<=maxPanelW?'<strong style="color:var(--green)">✓ Within limit</strong>':'<strong style="color:var(--red)">⚠ Over limit</strong>'}.</div>
+        <div class="alert-title">Max Panel Power for Your SCC</div>
+        <div class="alert-body">SCC ${sccA}A × ${batV}V × 1.3 = <strong>${maxPanelW.toFixed(0)}W max</strong><br>
+        Your panels: <strong>${panelW}W</strong> — ${panelW<=maxPanelW?'<strong style="color:var(--green)">✓ Within safe limit</strong>':'<strong style="color:var(--red)">⚠ Exceeds limit — reduce panels or upgrade SCC</strong>'}
+        </div>
       </div>
     </div>`;
   }
@@ -2541,6 +3053,7 @@ function clearAdminForm(){
 function saveProduct(){
   const name=$('newName').value.trim();
   if(!name){showToast('⚠ Product name required');return;}
+  const isEdit = !!$('editingId').value;
   const prod={
     id: $('editingId').value || Date.now().toString(),
     cat:   $('newCat').value,
@@ -2550,10 +3063,12 @@ function saveProduct(){
     link:  $('newLink').value.trim(),
     img:   $('newImg').value.trim(),
   };
-  const idx=products.findIndex(p=>p.id===prod.id);
-  if(idx>=0) products[idx]=prod; else products.push(prod);
-  saveStorage(); renderProducts(); cancelEdit();
-  showToast(idx>=0?'✓ Product updated':'✓ Product added');
+  cancelEdit();
+  if (isEdit) {
+    updateProductDB(prod);
+  } else {
+    addProductDB(prod);
+  }
 }
 
 function editProduct(id){
@@ -2582,9 +3097,7 @@ function showDeleteConfirm(id){
   openModal('modalConfirmDel');
 }
 function performDeleteProduct(id){
-  products=products.filter(p=>p.id!==id);
-  saveStorage(); renderProducts();
-  showToast('🗑 Product removed');
+  deleteProductDB(id);
 }
 
 function setCategory(cat, el){
@@ -2609,6 +3122,19 @@ function renderProducts(){
   const grid=$('productsGrid');
   const visible=currentCat==='All'?products:products.filter(p=>p.cat===currentCat);
   if(!visible.length){
+    const isLoading = !dbReady && products.length === 0;
+    if (isLoading) {
+      grid.innerHTML = Array(3).fill(0).map(()=>`
+        <div class="prod-skeleton">
+          <div class="skel-img"></div>
+          <div style="flex:1">
+            <div class="skel-line" style="width:60%"></div>
+            <div class="skel-line" style="width:80%"></div>
+            <div class="skel-line" style="width:40%"></div>
+          </div>
+        </div>`).join('');
+      return;
+    }
     grid.innerHTML=`<div class="empty"><div class="empty-icon">🛒</div><div class="empty-text">${products.length?'No products in this category':'No Products Yet'}</div><div class="empty-sub">${products.length?'Select a different category':'Tap Admin Panel to add your affiliate links'}</div></div>`;
     return;
   }
@@ -3000,9 +3526,7 @@ function toggleAcc(id) {
 
 /* ─── INIT ─── */
 (function init() {
-  loadStorage();
   renderAppliances();
-  renderProducts();
   renderBasics();
   updateSessionUI();
   // Show setup prompt on Shop tab if no 2FA set
@@ -3010,6 +3534,8 @@ function toggleAcc(id) {
     const sp = document.getElementById('setupPrompt');
     if (sp) sp.style.display = 'flex';
   }
+  // Load products from Firebase (falls back to localStorage if not configured)
+  loadProducts();
 })();
 </script>
 <!-- ══ 2FA SETUP MODAL ══ -->
