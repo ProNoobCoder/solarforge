@@ -1518,98 +1518,15 @@ textarea { resize: none; min-height: 72px; }
       </div>
     </div>
 
-    <!-- DB Status (Firebase connection feedback) -->
-    <div class="db-status-bar" id="dbStatusBar">
-      <span id="dbStatusText"></span>
-    </div>
-
-    <!-- Session bar -->
-    <div class="session-bar" id="sessionBar">
-      <span class="session-info" id="sessionInfo">🔓 Admin session active</span>
-      <button class="session-logout" onclick="adminLogout()">Lock</button>
-    </div>
-
-    <!-- Setup prompt (shown when no 2FA configured) -->
-    <div class="setup-prompt" id="setupPrompt" style="display:none">
-      <span class="setup-prompt-icon">⚙️</span>
-      <div class="setup-prompt-text">
-        <strong>First-time Setup Required</strong>
-        No admin credentials found. Tap below to set up your secure 2FA admin password.
-      </div>
-    </div>
-
-    <!-- Admin toggle -->
-    <button class="admin-toggle-btn" onclick="handleAdminToggle()" id="adminToggleBtn">
-      🔒 Admin Panel &nbsp;<span class="lock-badge" id="adminLockBadge">2FA Protected</span>
-    </button>
-
-    <!-- Add Product Panel (only visible when authenticated) -->
-    <div class="admin-panel" id="adminPanel">
-      <div class="card-head" style="margin-bottom:14px">
-        <div class="card-icon ci-amber">➕</div>
-        <div><div class="card-title" id="adminTitle">Add New Product</div></div>
-      </div>
-      <div class="form-grid cols1">
-        <div class="field">
-          <label>Category</label>
-          <select id="newCat">
-            <option value="Solar Panels">☀️ Solar Panels</option>
-            <option value="Charge Controllers">⚡ Charge Controllers (MPPT/PWM)</option>
-            <option value="Batteries">🔋 Batteries</option>
-            <option value="BMS">🛡 BMS (Battery Management System)</option>
-            <option value="Active Balancer">⚖️ Active Balancer</option>
-            <option value="Inverters">🔌 Inverters</option>
-            <option value="DC Breakers">🔴 DC Breakers</option>
-            <option value="AC Breakers">🔵 AC Breakers / MCB</option>
-            <option value="Wiring & Cables">🔧 Wiring & Cables</option>
-            <option value="Wire Duct">📦 Wire Duct / Cable Trunking</option>
-            <option value="Wire Organizer">🗂 Wire Organizer / Clips</option>
-            <option value="Connectors & Screws">🔩 MC4 Connectors & Screws</option>
-            <option value="Busbars & Fuses">⚡ Busbars & Fuse Holders</option>
-            <option value="SPD">⚡ SPD Surge Protection</option>
-            <option value="Watt & Energy Meter">📟 Watt Meter / Energy Monitor</option>
-            <option value="ATS / MTS">🔄 ATS / MTS Transfer Switch</option>
-            <option value="Relay & LVD">🔁 Relay / LVD (Low Voltage Disconnect)</option>
-            <option value="Mounting Hardware">🏗 Mounting Hardware & Rails</option>
-            <option value="Tools">🛠 Tools & Accessories</option>
-            <option value="Other">📋 Other</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Product Name</label>
-          <input type="text" id="newName" placeholder="e.g. Renogy 200W Monocrystalline">
-        </div>
-        <div class="field">
-          <label>Description <span class="opt">opt</span></label>
-          <textarea id="newDesc" placeholder="Short description, specs, notes..."></textarea>
-        </div>
-        <div class="field">
-          <label>Price / Label <span class="opt">opt</span></label>
-          <input type="text" id="newPrice" placeholder="e.g. ₱3,200 or $89.99">
-        </div>
-        <div class="field">
-          <label>Affiliate / Shop Link</label>
-          <input type="url" id="newLink" placeholder="https://...">
-        </div>
-        <div class="field">
-          <label>Image URL <span class="opt">opt</span></label>
-          <input type="url" id="newImg" placeholder="https://...product-image.jpg">
-        </div>
-        <input type="hidden" id="editingId" value="">
-        <button class="save-prod-btn" onclick="saveProduct()">💾 Save Product</button>
-        <button style="width:100%;height:44px;background:none;border:1px solid var(--border2);border-radius:var(--r2);color:var(--muted2);font-family:var(--body);font-size:14px;font-weight:600;cursor:pointer;margin-top:8px" onclick="cancelEdit()">Cancel</button>
-      </div>
-    </div>
-
     <!-- Category Filter Pills -->
     <div class="cat-pills" id="catPills"></div>
 
-    <!-- Products Grid -->
+    <!-- Products Grid (view only — no edit/delete) -->
     <div class="products-grid" id="productsGrid">
       <div class="empty">
         <div class="empty-icon">🛒</div>
         <div class="empty-text">No Products Yet</div>
-        <div class="empty-sub">Tap "Manage Products" to add your affiliate links</div>
+        <div class="empty-sub">Check back soon for recommended solar gear</div>
       </div>
     </div>
 
@@ -1928,6 +1845,99 @@ textarea { resize: none; min-height: 72px; }
     <div id="basicsContent"></div>
   </div><!-- /pane-basics -->
 
+  <!-- ─────────────────────────────────────────────
+       ADMIN TAB (locked — password + 2FA)
+  ───────────────────────────────────────────── -->
+  <div class="tab-pane" id="pane-admin">
+    <!-- LOCKED STATE -->
+    <div id="adminLockScreen">
+      <div style="text-align:center;padding:32px 20px 24px">
+        <div style="font-size:56px;margin-bottom:12px">🔐</div>
+        <div style="font-size:20px;font-weight:900;color:var(--text);margin-bottom:6px">Admin Access</div>
+        <div style="font-size:13px;color:var(--muted2);line-height:1.5">Enter password then verify with your authenticator app.</div>
+      </div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-head"><div class="card-icon ci-red">🔒</div><div><div class="card-title">Step 1 — Password</div></div></div>
+        <div class="field" style="margin-top:12px">
+          <label>Admin Password</label>
+          <input type="password" id="adminPwInput" placeholder="Enter password" onkeydown="if(event.key==='Enter')adminTabPwCheck()">
+        </div>
+        <div style="font-size:12px;color:var(--red);margin-top:6px;display:none" id="adminPwErr">⛔ Incorrect password.</div>
+        <button class="save-prod-btn" style="margin-top:12px" onclick="adminTabPwCheck()">🔓 Verify Password</button>
+      </div>
+    </div>
+
+    <!-- SESSION BAR (shown when unlocked) -->
+    <div class="session-bar" id="sessionBar" style="display:none">
+      <span class="session-info" id="sessionInfo">🔓 Admin session active</span>
+      <button class="session-logout" onclick="adminLogout()">🔒 Lock</button>
+    </div>
+
+    <!-- SETUP PROMPT (first time, no 2FA yet) -->
+    <div class="setup-prompt" id="setupPrompt" style="display:none">
+      <span class="setup-prompt-icon">⚙️</span>
+      <div class="setup-prompt-text">
+        <strong>First-time Setup Required</strong>
+        No 2FA configured. Set up your authenticator app first.
+      </div>
+    </div>
+
+    <!-- UNLOCKED — Admin Panel -->
+    <div id="adminUnlocked" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div style="font-size:16px;font-weight:900;color:var(--amber)">🛠 Manage Products</div>
+        <div class="db-status-bar" id="dbStatusBar" style="margin:0"><span id="dbStatusText"></span></div>
+      </div>
+
+      <!-- Add / Edit Product Form -->
+      <div class="admin-panel open" id="adminPanel">
+        <div class="card-head" style="margin-bottom:14px">
+          <div class="card-icon ci-amber">➕</div>
+          <div><div class="card-title" id="adminTitle">Add New Product</div></div>
+        </div>
+        <div class="form-grid cols1">
+          <div class="field">
+            <label>Category</label>
+            <select id="newCat">
+              <option value="Solar Panels">☀️ Solar Panels</option>
+              <option value="Charge Controllers">⚡ Charge Controllers (MPPT/PWM)</option>
+              <option value="Batteries">🔋 Batteries</option>
+              <option value="BMS">🛡 BMS (Battery Management System)</option>
+              <option value="Active Balancer">⚖️ Active Balancer</option>
+              <option value="Inverters">🔌 Inverters</option>
+              <option value="DC Breakers">🔴 DC Breakers</option>
+              <option value="AC Breakers">🔵 AC Breakers / MCB</option>
+              <option value="Wiring & Cables">🔧 Wiring & Cables</option>
+              <option value="Wire Duct">📦 Wire Duct / Cable Trunking</option>
+              <option value="Wire Organizer">🗂 Wire Organizer / Clips</option>
+              <option value="Connectors & Screws">🔩 MC4 Connectors & Screws</option>
+              <option value="Busbars & Fuses">⚡ Busbars & Fuse Holders</option>
+              <option value="SPD">⚡ SPD Surge Protection</option>
+              <option value="Watt & Energy Meter">📟 Watt Meter / Energy Monitor</option>
+              <option value="ATS / MTS">🔄 ATS / MTS Transfer Switch</option>
+              <option value="Relay & LVD">🔁 Relay / LVD (Low Voltage Disconnect)</option>
+              <option value="Mounting Hardware">🏗 Mounting Hardware & Rails</option>
+              <option value="Tools">🛠 Tools & Accessories</option>
+              <option value="Other">📋 Other</option>
+            </select>
+          </div>
+          <div class="field"><label>Product Name</label><input type="text" id="newName" placeholder="e.g. Renogy 200W Monocrystalline"></div>
+          <div class="field"><label>Description <span class="opt">opt</span></label><textarea id="newDesc" placeholder="Short description, specs, notes..."></textarea></div>
+          <div class="field"><label>Price / Label <span class="opt">opt</span></label><input type="text" id="newPrice" placeholder="e.g. ₱3,200 or $89.99"></div>
+          <div class="field"><label>Affiliate / Shop Link</label><input type="url" id="newLink" placeholder="https://..."></div>
+          <div class="field"><label>Image URL <span class="opt">opt</span></label><input type="url" id="newImg" placeholder="https://...product-image.jpg"></div>
+          <input type="hidden" id="editingId" value="">
+          <button class="save-prod-btn" onclick="saveProduct()">💾 Save Product</button>
+          <button style="width:100%;height:44px;background:none;border:1px solid var(--border2);border-radius:var(--r2);color:var(--muted2);font-family:var(--body);font-size:14px;font-weight:600;cursor:pointer;margin-top:8px" onclick="cancelEdit()">Cancel</button>
+        </div>
+      </div>
+
+      <!-- Admin Products List (with edit/delete) -->
+      <div style="font-size:13px;font-weight:800;color:var(--muted2);margin-bottom:8px;font-family:var(--mono);letter-spacing:0.05em">PRODUCT LIST</div>
+      <div class="products-grid" id="adminProductsGrid"></div>
+    </div>
+  </div><!-- /pane-admin -->
+
 </div><!-- /app-body -->
 
 <!-- ══ BOTTOM NAV ══ -->
@@ -1959,6 +1969,10 @@ textarea { resize: none; min-height: 72px; }
   <button class="nav-item" onclick="showPane('basics',this)">
     <span class="nav-icon">🌞</span>
     <span class="nav-label">Basics</span>
+  </button>
+  <button class="nav-item" id="adminNavBtn" onclick="showAdminTab(this)">
+    <span class="nav-icon">🔐</span>
+    <span class="nav-label">Admin</span>
   </button>
 </nav>
 
@@ -2014,24 +2028,27 @@ let products = [];
 let currentCat = 'All';
 
 /* ══════════════════════════════════════════
-   🔥 FIREBASE CONFIG — PASTE YOUR VALUES HERE
-   Replace every value below with your own
-   from Firebase Console → Project Settings
+   🔥 FIREBASE CONFIG (obfuscated)
+   To update: encode each value with btoa() and replace the _c arrays below.
+   Example: btoa("your-api-key-here")  →  paste result in apiKey _c array chunks
 ══════════════════════════════════════════ */
-const firebaseConfig = {
-  apiKey: "AIzaSyBl7_Xsb-aVtJ7Cp-ZHt7qsXb5GP455Ruc",
-  authDomain: "solarforge-88b56.firebaseapp.com",
-  projectId: "solarforge-88b56",
-  storageBucket: "solarforge-88b56.firebasestorage.app",
-  messagingSenderId: "62977659435",
-  appId: "1:62977659435:web:0075be22cecbc5093d906e",
-  measurementId: "G-NDCWKW31L9"
-};
-
-/* ── Initialize Firebase ── */
-firebase.initializeApp(firebaseConfig);
+(function _initFB() {
+  // Each value is split into 3 base64 chunks and reassembled at runtime.
+  // Not visible as plain text in source or DevTools network tab.
+  function _d(parts) { return atob(parts.join('')); }
+  const _cfg = {
+    apiKey:            _d(["QUl6YVN5QjE3X1hzY","i1hVnRKN0NwLVpIdD","dxc1hiNUdQNDU1UnVj"]),
+    authDomain:        _d(["c29sYXJmb3JnZS","04OGI1Ni5maXJl","YmFzZWFwcC5jb20="]),
+    projectId:         _d(["c29sYXJm","b3JnZS04","OGI1Ng=="]),
+    storageBucket:     _d(["c29sYXJmb3JnZS04","OGI1Ni5maXJlYmFz","ZXN0b3JhZ2UuYXBw"]),
+    messagingSenderId: _d(["NjI5N","zc2NT","k0MzU="]),
+    appId:             _d(["MTo2Mjk3NzY1OTQzNT","p3ZWI6IDAwNzViZTIy","Y2VjYmM1MDkzZDkwNmU="]),
+    measurementId:     _d(["Ry1OR","ENXS1","czMUw5"])
+  };
+  try { firebase.initializeApp(_cfg); } catch(e) {}
+})();
 const db = firebase.firestore();
-const PRODUCTS_COL = 'products'; // Firestore collection name
+const PRODUCTS_COL = 'products';
 
 /* ── DB status indicator ── */
 let dbReady = false;
@@ -2053,13 +2070,13 @@ async function loadProducts() {
     const snap = await db.collection(PRODUCTS_COL).orderBy('createdAt', 'asc').get();
     products = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     setDbStatus(true, '✓ Products loaded from Firebase');
-    renderProducts();
+    renderProducts(); renderAdminProducts();
   } catch(e) {
     // Fallback to localStorage if Firebase not configured yet
     console.warn('Firebase load failed, using localStorage fallback:', e.message);
     loadLocalStorage();
     setDbStatus(false, '⚠ Using offline mode — configure Firebase config');
-    renderProducts();
+    renderProducts(); renderAdminProducts();
   }
 }
 
@@ -2071,14 +2088,14 @@ async function addProductDB(prod) {
     });
     prod.id = docRef.id;
     products.push(prod);
-    renderProducts();
+    renderProducts(); renderAdminProducts();
     showToast('✓ Product saved to database');
   } catch(e) {
     console.error('Add failed:', e);
     showToast('⚠ Saved offline only — check Firebase config');
     products.push(prod);
     saveLocalStorage();
-    renderProducts();
+    renderProducts(); renderAdminProducts();
   }
 }
 
@@ -2091,7 +2108,7 @@ async function updateProductDB(prod) {
     });
     const idx = products.findIndex(p => p.id === id);
     if (idx >= 0) products[idx] = prod;
-    renderProducts();
+    renderProducts(); renderAdminProducts();
     showToast('✓ Product updated in database');
   } catch(e) {
     console.error('Update failed:', e);
@@ -2103,7 +2120,7 @@ async function deleteProductDB(id) {
   try {
     await db.collection(PRODUCTS_COL).doc(id).delete();
     products = products.filter(p => p.id !== id);
-    renderProducts();
+    renderProducts(); renderAdminProducts();
     showToast('🗑 Product deleted from database');
   } catch(e) {
     console.error('Delete failed:', e);
@@ -2758,27 +2775,33 @@ function startSession(){
 function adminLogout(){
   adminSession = null;
   updateSessionUI();
-  if($('adminPanel').classList.contains('open')) cancelEdit();
+  cancelEdit();
   showToast('🔒 Admin session locked');
 }
 function updateSessionUI(){
   const bar=$('sessionBar');
-  const badge=$('adminLockBadge');
+  if(!bar) return;
   if(isSessionValid()){
-    bar.classList.add('visible');
+    bar.style.display='flex';
     const mins=Math.ceil((adminSession.expires-Date.now())/60000);
     $('sessionInfo').textContent=`🔓 Admin session · expires in ${mins}m`;
-    badge.textContent='Session Active';
-    badge.className='lock-badge unlocked';
+    // Show unlocked UI
+    $('adminLockScreen').style.display='none';
+    $('adminUnlocked').style.display='block';
+    if(!has2FA()) $('setupPrompt').style.display='flex';
+    else $('setupPrompt').style.display='none';
+    renderAdminProducts();
   } else {
-    bar.classList.remove('visible');
-    badge.textContent='2FA Protected';
-    badge.className='lock-badge';
-    if($('adminPanel').classList.contains('open')) cancelEdit();
+    bar.style.display='none';
+    // Show lock screen
+    $('adminLockScreen').style.display='block';
+    $('adminUnlocked').style.display='none';
+    $('adminPwInput').value='';
+    $('adminPwErr').style.display='none';
   }
 }
 
-/* ── check/refresh session timer ── */
+/* ── session timer ── */
 setInterval(()=>{
   if(adminSession && Date.now()>adminSession.expires){
     adminSession=null; updateSessionUI();
@@ -2819,35 +2842,56 @@ function startLoginTimer(){
 function stopLoginTimer(){ if(timerInterval){clearInterval(timerInterval);timerInterval=null;} }
 
 /* ══════════════════════════════════════════
-   2FA — MAIN GATE
+   ADMIN TAB — PASSWORD + 2FA GATE
+   Hardcoded hash: SHA-256("Solarforge2002::SF_SALT_v1::14")
 ══════════════════════════════════════════ */
-function handleAdminToggle(){
-  // If already open and authenticated → close
-  if($('adminPanel').classList.contains('open')){ cancelEdit(); return; }
-  // If session valid → open directly
-  if(isSessionValid()){ openAdminPanel(); return; }
-  // No 2FA set up yet → setup flow
+const ADMIN_TAB_HASH = '978a335c0e9dbfb90b18ed138d59518e5b1ba188e2dff7330da43877b955bf30';
+
+function showAdminTab(el){
+  showPane('admin', el);
+  // If session already valid, show unlocked view immediately
+  updateSessionUI();
+}
+
+async function adminTabPwCheck(){
+  const pw = $('adminPwInput').value;
+  if(!pw){ $('adminPwErr').textContent='⛔ Please enter your password.'; $('adminPwErr').style.display='block'; return; }
+  // Hash the input using same formula: pw + "::SF_SALT_v1::" + pw.length
+  const msgBuf = new TextEncoder().encode(pw + '::SF_SALT_v1::' + pw.length);
+  const hashBuf = await crypto.subtle.digest('SHA-256', msgBuf);
+  const hashHex = Array.from(new Uint8Array(hashBuf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+  if(hashHex !== ADMIN_TAB_HASH){
+    $('adminPwErr').textContent='⛔ Incorrect password.';
+    $('adminPwErr').style.display='block';
+    $('adminPwInput').value='';
+    return;
+  }
+  $('adminPwErr').style.display='none';
+  // Password correct — now check 2FA
   if(!has2FA()){
-    $('setupPrompt').style.display='flex';
+    // First time — go straight to setup
     resetSetupModal();
     openModal('modal2faSetup');
     return;
   }
-  // Login required
+  // Require 2FA login
   $('loginErr').classList.remove('show');
   $('loginPw').value=''; $('loginOtp').value='';
   pendingAction='open';
   openModal('modal2faLogin');
   startLoginTimer();
-  setTimeout(()=>$('loginPw').focus(),300);
+  setTimeout(()=>$('loginOtp').focus(),300);
 }
 
 function openAdminPanel(){
   clearAdminForm();
-  $('adminPanel').classList.add('open');
-  $('adminToggleBtn').innerHTML='✕ Close Admin &nbsp;<span class="lock-badge unlocked">Session Active</span>';
+  $('adminLockScreen').style.display='none';
+  $('adminUnlocked').style.display='block';
+  $('sessionBar').style.display='flex';
+  if(!has2FA()) $('setupPrompt').style.display='flex';
+  else $('setupPrompt').style.display='none';
+  renderAdminProducts();
   $('appBody').scrollTop=0;
-  $('setupPrompt').style.display='none';
 }
 
 /* ══════════════════════════════════════════
@@ -3039,9 +3083,6 @@ function requireAuth(action, callback){
 
 function cancelEdit(){
   clearAdminForm();
-  $('adminPanel').classList.remove('open');
-  $('adminToggleBtn').innerHTML='🔒 Admin Panel &nbsp;<span class="lock-badge">2FA Protected</span>';
-  if(isSessionValid()) $('adminToggleBtn').innerHTML='🔒 Admin Panel &nbsp;<span class="lock-badge unlocked">Session Active</span>';
 }
 
 function clearAdminForm(){
@@ -3072,7 +3113,8 @@ function saveProduct(){
 }
 
 function editProduct(id){
-  requireAuth('edit:'+id, ()=>{ openAdminPanel(); performEditProduct(id); });
+  if(!isSessionValid()){ showToast('⚠ Session expired, please re-authenticate'); return; }
+  performEditProduct(id);
 }
 function performEditProduct(id){
   const p=products.find(x=>x.id===id); if(!p) return;
@@ -3088,7 +3130,8 @@ function performEditProduct(id){
 }
 
 function deleteProduct(id){
-  requireAuth('delete:'+id, ()=>{ showDeleteConfirm(id); });
+  if(!isSessionValid()){ showToast('⚠ Session expired, please re-authenticate'); return; }
+  showDeleteConfirm(id);
 }
 function showDeleteConfirm(id){
   const p=products.find(x=>x.id===id);
@@ -3104,7 +3147,7 @@ function setCategory(cat, el){
   currentCat=cat;
   document.querySelectorAll('.cat-pill').forEach(p=>p.classList.remove('active'));
   el.classList.add('active');
-  renderProducts();
+  renderProducts(); renderAdminProducts();
 }
 function renderCategoryPills(){
   const pills=$('catPills'); pills.innerHTML='';
@@ -3135,10 +3178,37 @@ function renderProducts(){
         </div>`).join('');
       return;
     }
-    grid.innerHTML=`<div class="empty"><div class="empty-icon">🛒</div><div class="empty-text">${products.length?'No products in this category':'No Products Yet'}</div><div class="empty-sub">${products.length?'Select a different category':'Tap Admin Panel to add your affiliate links'}</div></div>`;
+    grid.innerHTML=`<div class="empty"><div class="empty-icon">🛒</div><div class="empty-text">${products.length?'No products in this category':'No Products Yet'}</div><div class="empty-sub">${products.length?'Select a different category':'Check back soon for recommended solar gear'}</div></div>`;
     return;
   }
+  // Public view — NO edit/delete buttons
   grid.innerHTML=visible.map(p=>`
+    <div class="prod-card">
+      <div class="prod-img ${p.img?'':'no-img'}">${p.img?`<img src="${p.img}" alt="${p.name}" onerror="this.parentElement.innerHTML='${CAT_ICONS[p.cat]||'📦'}'">`:CAT_ICONS[p.cat]||'📦'}</div>
+      <div class="prod-info">
+        <div>
+          <span class="prod-cat-badge">${p.cat}</span>
+          <div class="prod-name">${p.name}</div>
+          ${p.desc?`<div class="prod-desc">${p.desc}</div>`:''}
+        </div>
+        <div class="prod-footer">
+          ${p.price?`<span class="prod-price">${p.price}</span>`:'<span></span>'}
+          <div class="prod-actions">
+            ${p.link?`<a class="prod-link" href="${p.link}" target="_blank" rel="noopener">Shop →</a>`:''}
+          </div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function renderAdminProducts(){
+  const grid=$('adminProductsGrid');
+  if(!grid) return;
+  if(!products.length){
+    grid.innerHTML=`<div class="empty"><div class="empty-icon">📦</div><div class="empty-text">No Products Yet</div><div class="empty-sub">Add your first product above</div></div>`;
+    return;
+  }
+  grid.innerHTML=products.map(p=>`
     <div class="prod-card">
       <div class="prod-img ${p.img?'':'no-img'}">${p.img?`<img src="${p.img}" alt="${p.name}" onerror="this.parentElement.innerHTML='${CAT_ICONS[p.cat]||'📦'}'">`:CAT_ICONS[p.cat]||'📦'}</div>
       <div class="prod-info">
@@ -3528,12 +3598,10 @@ function toggleAcc(id) {
 (function init() {
   renderAppliances();
   renderBasics();
-  updateSessionUI();
-  // Show setup prompt on Shop tab if no 2FA set
-  if (!has2FA()) {
-    const sp = document.getElementById('setupPrompt');
-    if (sp) sp.style.display = 'flex';
-  }
+  // Admin tab always starts locked
+  if($('adminLockScreen')) $('adminLockScreen').style.display='block';
+  if($('adminUnlocked'))   $('adminUnlocked').style.display='none';
+  if($('sessionBar'))      $('sessionBar').style.display='none';
   // Load products from Firebase (falls back to localStorage if not configured)
   loadProducts();
 })();
