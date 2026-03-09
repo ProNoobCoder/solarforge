@@ -413,19 +413,20 @@ textarea { resize: none; min-height: 72px; }
 /* the node box itself */
 .wbox {
   width: 100%; border-radius: 12px; padding: 12px 14px;
-  border: 2px solid; display: flex; align-items: center; gap: 12px;
+  border: 2px solid; display: flex; align-items: flex-start; gap: 12px;
   position: relative;
 }
-.wbox-icon { font-size: 28px; flex-shrink: 0; line-height: 1; }
+.wbox-icon { font-size: 28px; flex-shrink: 0; line-height: 1; margin-top: 2px; }
 .wbox-info { flex: 1; min-width: 0; }
 .wbox-title { font-size: 14px; font-weight: 900; line-height: 1.2; }
 .wbox-spec  { font-family: var(--mono); font-size: 12px; font-weight: 700; margin-top: 2px; }
 .wbox-desc  { font-size: 11px; color: var(--muted2); margin-top: 3px; line-height: 1.4; }
 .wbox-badge {
-  position: absolute; top: -9px; right: 10px;
-  font-size: 10px; font-family: var(--mono); font-weight: 800;
-  padding: 2px 8px; border-radius: 4px; letter-spacing: 0.08em;
-  text-transform: uppercase;
+  /* Sits inside top-right corner — never crosses the border */
+  position: absolute; top: 8px; right: 10px;
+  font-size: 9px; font-family: var(--mono); font-weight: 900;
+  padding: 2px 7px; border-radius: 4px; letter-spacing: 0.1em;
+  text-transform: uppercase; line-height: 1.4;
 }
 
 /* node color themes */
@@ -1508,6 +1509,8 @@ textarea { resize: none; min-height: 72px; }
           ⚠️ <strong style="color:var(--amber)">Disclaimer:</strong>
           Ang mga affiliate links dito ay nagbibigay ng maliit na komisyon sa akin
           kung bibili kayo — <em>walang dagdag na bayad sa inyo</em>.
+          Ang komisyong ito ay ginagamit para suportahan at mapanatili ang libreng
+          paggamit ng website na ito para sa lahat. 🙏
           Palaging mag-compare ng presyo at basahin ang reviews bago bumili.
           Ang final na desisyon ay nasa inyo pa rin. ✅
         </p>
